@@ -16,7 +16,9 @@ input,select,textarea{font:inherit;color:var(--ink)}
 :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .hidden{display:none!important}.g{color:var(--ok)}.num{font-variant-numeric:tabular-nums}
 svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
-.mark{width:36px;height:36px;border-radius:10px;background:var(--ac);color:#fff;display:grid;place-items:center;font-weight:800;overflow:hidden;flex-shrink:0}.mark img{width:100%;height:100%;object-fit:cover}
+.mark{width:36px;height:36px;border-radius:10px;background:var(--ac);color:#fff;display:grid;place-items:center;font-weight:800;overflow:hidden;flex-shrink:0}.mark img{width:100%;height:100%;object-fit:contain}.mark:has(img){background:transparent}
+.vd{display:flex;gap:10px;align-items:center;font-size:11.5px;color:var(--i3);line-height:1.3;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--ln)}.vd img{width:32px;height:32px;border-radius:8px;object-fit:contain}.vd b{color:var(--ink);font-size:12.5px}.vd a{color:inherit;text-decoration:none}
+#login .vd{border:0;justify-content:center;margin:0}.lgp img{object-fit:contain!important}
 #login{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 20% 10%,var(--acs),transparent 55%),var(--bg)}
 .lc{background:var(--sf);border:1px solid var(--ln);border-radius:18px;padding:36px;width:100%;max-width:400px;box-shadow:0 24px 60px -30px rgba(0,0,0,.35)}
 .lb{display:flex;gap:12px;align-items:center;margin-bottom:24px}.lb b{display:block;font-size:18px;font-weight:800;line-height:1.2}.lb span{font-size:12.5px;color:var(--i3)}
@@ -98,14 +100,14 @@ td b{font-weight:700}td small{display:block;color:var(--i3);font-size:12px}
   <div id="le" class="err hidden"></div>
   <form id="lf"><div class="fd"><label>Email</label><input id="em" type="email" autocomplete="username" required></div>
   <div class="fd"><label>Mot de passe</label><input id="pw" type="password" autocomplete="current-password" required></div>
-  <button class="btn" id="lb" style="width:100%;padding:12px">Se connecter</button></form>
+  <button class="btn" id="lb" style="width:100%;padding:12px">Se connecter</button></form><div data-vd style="margin-top:24px"></div>
 </div></div>
 
 <div id="app">
   <div class="scr" id="scr"></div>
   <aside id="sd"><div class="sb"><div class="mark" data-mk></div><div><b data-bn></b><span data-bt></span></div></div>
     <nav id="nv"></nav>
-    <div class="sf"><b id="who"></b><button id="lo">Se déconnecter</button></div>
+    <div class="sf"><div data-vd></div><b id="who"></b><button id="lo">Se déconnecter</button></div>
   </aside>
   <div style="min-width:0">
     <div class="top">
@@ -125,7 +127,8 @@ td b{font-weight:700}td small{display:block;color:var(--i3);font-size:12px}
 /* ================= CONFIG — seul bloc à modifier pour chaque client ================= */
 const C={
   brand:{name:"Invenza",tag:"Gestion de stock",logo:"",accent:"#14a35f"},
-  supabase:{url:"https://mmdmzgrzvzfwypxekpgu.supabase.co",anonKey:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZG16Z3J6dnpmd3lweGVrcGd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExODY0NDMsImV4cCI6MjEwNjc2MjQ0M30.J62nV0r61Bjijss8IWw3FlNOoe52XQGuCn2WyOA5yoQ",bucket:"products"},
+  vendor:{name:"",tag:"Logiciel développé par",logo:"",url:""},
+  supabase:{url:"",anonKey:"",bucket:"products"},
   currency:"DH",locale:"fr-FR"
 };
 /* ===================================================================================== */
@@ -147,14 +150,21 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-x]')||e.target.
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
 
 /* ---------- brand + supabase ---------- */
-const B=C.brand,cfg=!!(C.supabase.url&&C.supabase.anonKey);
-document.documentElement.style.setProperty('--ac',B.accent);document.title=B.name+' — Admin';
-$$('[data-bn]').forEach(e=>e.textContent=B.name);$$('[data-bt]').forEach(e=>e.textContent=B.tag);
-$$('[data-mk]').forEach(e=>e.innerHTML=B.logo?`<img src="${esc(B.logo)}" alt="">`:esc(B.name.trim()[0]||'?').toUpperCase());
+let B={...C.brand},V={...C.vendor};const cfg=!!(C.supabase.url&&C.supabase.anonKey);
+function brand(){const b=S||{},n=b.store_name||C.brand.name;
+  B={name:n,tag:b.tagline??C.brand.tag,logo:b.logo||C.brand.logo,accent:/^#[0-9a-f]{6}$/i.test(b.accent||'')?b.accent:C.brand.accent};
+  if(b.currency)C.currency=b.currency;
+  V={name:b.vendor_name||C.vendor.name,tag:b.vendor_tag||C.vendor.tag,logo:b.vendor_logo||C.vendor.logo,url:b.vendor_url||C.vendor.url};
+  document.documentElement.style.setProperty('--ac',B.accent);document.title=n+' — Admin';
+  $$('[data-bn]').forEach(e=>e.textContent=n);$$('[data-bt]').forEach(e=>e.textContent=B.tag||'');
+  $$('[data-mk]').forEach(e=>e.innerHTML=B.logo?`<img src="${esc(B.logo)}" alt="">`:esc((n.trim()[0]||'?').toUpperCase()));
+  if(B.logo){let l=$('link[rel=icon]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l)}l.href=B.logo}
+  const vh=(V.name||V.logo)?`<div class="vd">${V.logo?`<img src="${esc(V.logo)}" alt="">`:''}<span>${esc(V.tag)}<br><b>${V.url?`<a href="${esc(V.url)}" target="_blank" rel="noopener">${esc(V.name)}</a>`:esc(V.name)}</b></span></div>`:'';
+  $$('[data-vd]').forEach(e=>e.innerHTML=vh)}
 if(localStorage.getItem('t')==='dark')document.documentElement.dataset.t='dark';
 $('#dk').onclick=()=>{const d=document.documentElement.dataset.t==='dark';d?delete document.documentElement.dataset.t:document.documentElement.dataset.t='dark';try{localStorage.setItem('t',d?'light':'dark')}catch(e){}};
 const sb=cfg&&window.supabase?window.supabase.createClient(C.supabase.url,C.supabase.anonKey):null;
-const D={categories:[],products:[],customers:[],suppliers:[],sales:[],purchases:[],expenses:[]};let S={};
+const D={categories:[],products:[],customers:[],suppliers:[],sales:[],purchases:[],expenses:[]};let S={};try{S=JSON.parse(localStorage.getItem('bs')||'{}')}catch(e){}brand();
 const Q={categories:'*',products:'*',customers:'*',suppliers:'*',sales:'*, sale_items(*)',purchases:'*, purchase_items(*)',expenses:'*'};
 
 $('#lf').onsubmit=async e=>{e.preventDefault();const er=$('#le');er.classList.add('hidden');
@@ -173,7 +183,7 @@ async function showApp(s){$('#login').style.display='none';$('#app').classList.a
 async function load(){
   let fail=null;
   await Promise.all(Object.keys(Q).map(async k=>{const {data,error}=await sb.from(k).select(Q[k]).order('id',{ascending:false});if(error)fail=fail||error;else D[k]=data||[]}));
-  const {data:st}=await sb.from('settings').select('*').eq('id',1).maybeSingle();S=st||{};
+  const {data:st}=await sb.from('settings').select('*').eq('id',1).maybeSingle();S=st||{};try{localStorage.setItem('bs',JSON.stringify(S))}catch(e){}brand();
   const cn=$('#cn');if(fail){cn.textContent='Base de données : '+fail.message+' — exécutez schema.sql dans Supabase.';cn.classList.remove('hidden')}else cn.classList.add('hidden');
   go()}
 
@@ -293,7 +303,7 @@ function view(k,id){const s=k==='sales',r=D[k].find(x=>x.id===id),its=(s?r.sale_
   <div class="ma"><button class="btn gh" data-x>Fermer</button>${s&&r.paid<r.total?'<button class="btn gh" id="mp">Marquer payée</button>':''}${s?'<button class="btn" id="pt">Imprimer la facture</button>':''}</div>`);
   const mp=$('#mp');if(mp)mp.onclick=async()=>{const {error}=await sb.from('sales').update({paid:r.total}).eq('id',id);if(error)return toast(error.message,1);closeM();toast('Facture payée');load()};
   const pt=$('#pt');if(pt)pt.onclick=()=>{const w=open('','_blank');if(!w)return toast('Autorisez les pop-ups',1);
-    w.document.write(`<html><head><title>${esc(r.invoice_no)}</title></head><body style="font-family:Arial,sans-serif;padding:40px;max-width:760px;margin:auto"><h2>${esc(S.store_name||B.name)}</h2><p style="color:#555">${esc(S.address||'')}<br>${esc(S.phone||'')} ${esc(S.email||'')}</p><hr><h3>Facture ${esc(r.invoice_no)}</h3><p>Date : ${fd(r.date)}<br>Client : ${esc(r.customer_id?nm('customers',r.customer_id):'Client comptoir')}</p><table style="width:100%;border-collapse:collapse"><tr style="background:#eee"><th align=left style="padding:8px">Article</th><th>Qté</th><th align=right>PU</th><th align=right>Total</th></tr>${its.map(i=>`<tr><td style="padding:8px;border-bottom:1px solid #ddd">${esc(i.name)}</td><td align=center>${i.quantity}</td><td align=right>${money(i.price)}</td><td align=right>${money(i.quantity*i.price)}</td></tr>`).join('')}</table><h3 style="text-align:right">Total : ${money(r.total)}</h3><p style="text-align:right">Payé : ${money(r.paid)} (${esc(r.method)})</p></body></html>`);w.document.close();w.focus();w.print()}}
+    w.document.write(`<html><head><title>${esc(r.invoice_no)}</title></head><body style="font-family:Arial,sans-serif;padding:40px;max-width:760px;margin:auto">${B.logo?`<img src="${esc(B.logo)}" style="height:56px"><br>`:''}<h2>${esc(S.store_name||B.name)}</h2><p style="color:#555">${esc(S.address||'')}<br>${esc(S.phone||'')} ${esc(S.email||'')}</p><hr><h3>Facture ${esc(r.invoice_no)}</h3><p>Date : ${fd(r.date)}<br>Client : ${esc(r.customer_id?nm('customers',r.customer_id):'Client comptoir')}</p><table style="width:100%;border-collapse:collapse"><tr style="background:#eee"><th align=left style="padding:8px">Article</th><th>Qté</th><th align=right>PU</th><th align=right>Total</th></tr>${its.map(i=>`<tr><td style="padding:8px;border-bottom:1px solid #ddd">${esc(i.name)}</td><td align=center>${i.quantity}</td><td align=right>${money(i.price)}</td><td align=right>${money(i.quantity*i.price)}</td></tr>`).join('')}</table><h3 style="text-align:right">Total : ${money(r.total)}</h3><p style="text-align:right">Payé : ${money(r.paid)} (${esc(r.method)})</p></body></html>`);w.document.close();w.focus();w.print()}}
 
 /* ---------- dashboard ---------- */
 const COL=['#14a35f','#2f5bea','#f59e0b','#8b5cf6','#94a3b8'];
@@ -334,9 +344,23 @@ function reports(){
 
 /* ---------- settings ---------- */
 function settings(){
-  $('#view').innerHTML=`<div class="head"><div><h2>Réglages</h2><p>Informations de la société (affichées sur les factures).</p></div></div><div class="card" style="max-width:560px"><form id="sf">${[['store_name','Nom de la société'],['email','Email'],['phone','Téléphone'],['address','Adresse']].map(([n,l])=>`<div class="fd"><label>${l}</label><input id="s_${n}" value="${esc(S[n]||'')}"></div>`).join('')}<button class="btn">Enregistrer</button></form></div>`;
-  $('#sf').onsubmit=async e=>{e.preventDefault();const v={id:1};['store_name','email','phone','address'].forEach(n=>v[n]=$('#s_'+n).value.trim());
-    const {error}=await sb.from('settings').upsert(v);if(error)return toast(error.message,1);S=v;toast('Réglages enregistrés')}}
+  const g=n=>esc(S[n]||''),inp=(n,l,ph,t)=>`<div class="fd"><label>${l}</label><input id="s_${n}" type="${t||'text'}" value="${g(n)}" placeholder="${ph||''}"></div>`;
+  const lg=(id,l)=>`<div class="fd"><label>${l}</label><div style="display:flex;gap:10px;align-items:center"><div class="th lgp" id="pv_${id}" style="width:64px;height:64px;border:2px dashed var(--ln);background:var(--bg);font-size:12px">${S[id]?`<img src="${esc(S[id])}" alt="">`:'Logo'}</div><input id="s_${id}" value="${g(id)}" placeholder="URL du logo ou importer →"><label class="btn gh sm" style="cursor:pointer">Importer<input type="file" accept="image/*" data-up="${id}" hidden></label></div></div>`;
+  $('#view').innerHTML=`<div class="head"><div><h2>Réglages</h2><p>Tout est modifiable : identité de la société cliente, votre marque d'éditeur, coordonnées et devise.</p></div></div>
+  <form id="sf"><div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));align-items:start">
+  <div class="card"><h3>Société cliente<small>affichée dans le logiciel et sur les factures</small></h3>${inp('store_name','Nom de la société *','Ex : Atlas Distribution')}${inp('tagline','Slogan / sous-titre','Gestion de stock')}${lg('logo','Logo de la société')}<div class="fr"><div class="fd"><label>Couleur principale</label><input id="s_accent" type="color" value="${/^#[0-9a-f]{6}$/i.test(S.accent||'')?S.accent:B.accent}" style="height:42px;padding:3px"></div>${inp('currency','Devise','DH')}</div>${inp('email','Email','contact@…','email')}${inp('phone','Téléphone','+212…')}${inp('address','Adresse','')}</div>
+  <div class="card"><h3>Votre entreprise (éditeur)<small>affichée en bas du menu et sur la page de connexion</small></h3>${inp('vendor_name','Nom de votre entreprise','Ex : Adil Software')}${inp('vendor_tag','Texte avant le nom','Logiciel développé par')}${lg('vendor_logo','Votre logo')}${inp('vendor_url','Site web / lien','https://…')}<p style="color:var(--i3);font-size:12.5px">Laissez vide pour masquer ce bloc.</p></div></div>
+  <div class="ma" style="justify-content:flex-start"><button class="btn">Enregistrer</button></div></form>`;
+  ['logo','vendor_logo'].forEach(id=>$('#s_'+id).oninput=e=>$('#pv_'+id).innerHTML=e.target.value?`<img src="${esc(e.target.value)}" alt="">`:'Logo');
+  $$('[data-up]').forEach(i=>i.onchange=async()=>{const f=i.files[0],id=i.dataset.up;if(!f)return;if(f.size>3e6)return toast('Image trop lourde (3 Mo max)',1);
+    const p='brand-'+id+'-'+Date.now()+'-'+f.name.replace(/[^\w.-]/g,'_');toast('Import…');
+    const {error}=await sb.storage.from(C.supabase.bucket).upload(p,f);if(error)return toast(error.message,1);
+    const u=sb.storage.from(C.supabase.bucket).getPublicUrl(p).data.publicUrl;$('#s_'+id).value=u;$('#pv_'+id).innerHTML=`<img src="${esc(u)}" alt="">`;toast('Logo importé — pensez à enregistrer')});
+  $('#sf').onsubmit=async e=>{e.preventDefault();const v={id:1};
+    ['store_name','tagline','logo','accent','currency','email','phone','address','vendor_name','vendor_tag','vendor_logo','vendor_url'].forEach(n=>v[n]=$('#s_'+n).value.trim()||null);
+    if(!v.store_name)return toast('Le nom de la société est obligatoire',1);
+    const {error}=await sb.from('settings').upsert(v);if(error)return toast(error.message,1);
+    S={...S,...v};try{localStorage.setItem('bs',JSON.stringify(S))}catch(x){}brand();toast('Réglages enregistrés')}}
 </script>
 </body>
 </html>
