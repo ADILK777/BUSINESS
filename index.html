@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#2f4bd8;            /* overridden from CONFIG.brand.accent */
+    --accent-soft:color-mix(in srgb, var(--accent) 12%, white);
+    --bg:#f3f4f7; --surface:#ffffff; --ink:#14161c; --ink-2:#4a4f5c; --ink-3:#7d8392;
+    --line:#e3e5eb; --line-2:#eef0f4;
+    --ok:#1f7a4d; --ok-bg:#e3f4ea; --warn:#9a6208; --warn-bg:#fdf0d8;
+    --bad:#b3372b; --bad-bg:#fbe5e2; --info:#2f4bd8; --info-bg:#e6eafc; --mute-bg:#eceef2;
+    --radius:10px; --font:'Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink);}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .hidden{display:none !important;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  /* ---------- Brand mark ---------- */
+  .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px;flex-shrink:0;overflow:hidden;}
+  .mark img{width:100%;height:100%;object-fit:cover;}
+
+  /* ---------- Login ---------- */
+  #login{min-height:100vh;display:grid;place-items:center;padding:24px;}
+  .login-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:36px;width:100%;max-width:400px;box-shadow:0 20px 50px -24px rgba(20,22,28,.25);}
+  .login-brand{display:flex;align-items:center;gap:12px;margin-bottom:26px;}
+  .login-brand .mark{width:44px;height:44px;font-size:19px;border-radius:12px;}
+  .login-brand b{font-size:18px;font-weight:800;display:block;line-height:1.2;}
+  .login-brand span{font-size:12.5px;color:var(--ink-3);}
+  .login-card h1{font-size:20px;font-weight:700;margin-bottom:4px;}
+  .login-card > p{color:var(--ink-3);margin-bottom:22px;}
+  .login-err{background:var(--bad-bg);color:var(--bad);padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:14px;}
+  .setup-note{background:var(--warn-bg);color:var(--warn);padding:14px;border-radius:10px;font-size:13px;line-height:1.6;margin-bottom:16px;}
+  .setup-note code{background:rgba(0,0,0,.07);padding:1px 5px;border-radius:4px;}
+
+  /* ---------- Shell ---------- */
+  #app{display:none;min-height:100vh;grid-template-columns:248px 1fr;}
+  #app.show{display:grid;}
+  aside.side{background:var(--surface);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+  .side-brand{display:flex;align-items:center;gap:11px;padding:4px 8px 22px;}
+  .side-brand b{font-weight:800;font-size:15px;line-height:1.2;display:block;}
+  .side-brand span{font-size:11.5px;color:var(--ink-3);}
+  .nav{display:flex;flex-direction:column;gap:2px;}
+  .nav button{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;font-weight:600;font-size:13.5px;color:var(--ink-2);text-align:left;width:100%;}
+  .nav button svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .nav button:hover{background:var(--bg);color:var(--ink);}
+  .nav button.active{background:var(--accent-soft);color:var(--accent);}
+  .nav .badge{margin-left:auto;background:var(--accent);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:1px 8px;}
+  .side-foot{margin-top:auto;border-top:1px solid var(--line);padding:14px 8px 0;font-size:12.5px;color:var(--ink-3);}
+  .side-foot .who{color:var(--ink);font-weight:600;word-break:break-all;margin-bottom:8px;display:block;}
+  .side-foot button{color:var(--ink-2);font-weight:600;font-size:12.5px;}
+  .side-foot button:hover{color:var(--bad);}
+
+  .topbar{display:none;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;}
+  .topbar .burger{width:38px;height:38px;border:1px solid var(--line);border-radius:8px;display:grid;place-items:center;}
+  .topbar .burger svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+  .topbar b{font-weight:800;}
+  .scrim{display:none;position:fixed;inset:0;background:rgba(20,22,28,.45);z-index:39;}
+
+  main{padding:32px 40px 60px;min-width:0;}
+  .page{display:none;}
+  .page.active{display:block;}
+  .page-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:22px;}
+  .page-head h2{font-size:24px;font-weight:800;letter-spacing:-.3px;}
+  .page-head p{color:var(--ink-3);margin-top:2px;}
+  .head-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+  /* ---------- Controls ---------- */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;font-weight:700;font-size:13px;border-radius:8px;border:1px solid transparent;transition:background .15s,border-color .15s;white-space:nowrap;}
+  .btn-solid{background:var(--accent);color:#fff;}
+  .btn-solid:hover{background:color-mix(in srgb,var(--accent) 88%,black);}
+  .btn-ghost{background:var(--surface);border-color:var(--line);color:var(--ink);}
+  .btn-ghost:hover{border-color:var(--ink-3);}
+  .btn-danger{background:var(--bad-bg);color:var(--bad);}
+  .btn-danger:hover{background:#f7d3ce;}
+  .btn-sm{padding:6px 11px;font-size:12px;}
+  .btn:disabled{opacity:.55;cursor:not-allowed;}
+  .toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .toolbar input,.toolbar select{padding:9px 13px;border:1px solid var(--line);border-radius:8px;background:var(--surface);min-width:0;}
+  .toolbar input{flex:1 1 220px;max-width:340px;}
+
+  /* ---------- Cards / stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
+  .stat .l{font-size:12.5px;color:var(--ink-3);font-weight:600;}
+  .stat .n{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-top:4px;}
+  .stat .s{font-size:12px;color:var(--ink-3);margin-top:2px;}
+  .grid-2{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:18px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;min-width:0;}
+  .card h3{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+  .card h3 small{font-weight:500;color:var(--ink-3);font-size:12px;}
+
+  .chart{display:flex;align-items:flex-end;gap:10px;height:180px;padding-top:10px;}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;min-width:0;}
+  .bar{width:100%;max-width:46px;background:var(--accent-soft);border-radius:6px 6px 2px 2px;min-height:3px;position:relative;transition:background .15s;}
+  .bar-col:hover .bar{background:var(--accent);}
+  .bar-col .v{font-size:10.5px;color:var(--ink-3);font-weight:600;white-space:nowrap;}
+  .bar-col .d{font-size:11.5px;color:var(--ink-3);}
+  .alert-list{list-style:none;display:flex;flex-direction:column;gap:2px;}
+  .alert-list li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-2);font-size:13px;}
+  .alert-list li:last-child{border-bottom:none;}
+  .alert-list em{font-style:normal;font-weight:700;color:var(--bad);}
+
+  /* ---------- Tables ---------- */
+  .table-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;min-width:640px;}
+  th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line-2);font-size:13.5px;vertical-align:middle;}
+  th{font-size:12px;font-weight:700;color:var(--ink-3);background:#fafbfc;white-space:nowrap;}
+  tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:#fafbfc;}
+  .cell-prod{display:flex;align-items:center;gap:12px;}
+  .thumb{width:40px;height:40px;border-radius:8px;background:var(--mute-bg);object-fit:cover;flex-shrink:0;display:grid;place-items:center;color:var(--ink-3);font-size:11px;overflow:hidden;}
+  .thumb img{width:100%;height:100%;object-fit:cover;}
+  .cell-prod b{font-weight:600;display:block;}
+  .cell-prod span{font-size:12px;color:var(--ink-3);}
+  .row-actions{display:flex;gap:8px;justify-content:flex-end;}
+  .tag{display:inline-block;padding:3px 10px;font-size:12px;border-radius:20px;font-weight:700;}
+  .tag.ok{background:var(--ok-bg);color:var(--ok);}
+  .tag.warn{background:var(--warn-bg);color:var(--warn);}
+  .tag.bad{background:var(--bad-bg);color:var(--bad);}
+  .tag.info{background:var(--info-bg);color:var(--info);}
+  .tag.off{background:var(--mute-bg);color:var(--ink-3);}
+  .empty{padding:48px 20px;text-align:center;color:var(--ink-3);}
+  .empty b{display:block;color:var(--ink);font-size:15px;margin-bottom:4px;}
+  select.status-select{padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:var(--surface);font-size:12.5px;font-weight:600;}
+
+  /* ---------- Forms / modal ---------- */
+  .modal-bg{position:fixed;inset:0;background:rgba(20,22,28,.5);display:none;align-items:center;justify-content:center;z-index:60;padding:20px;}
+  .modal-bg.show{display:flex;}
+  .modal{background:var(--surface);width:100%;max-width:580px;max-height:90vh;overflow-y:auto;border-radius:14px;padding:28px;box-shadow:0 30px 70px -20px rgba(0,0,0,.4);animation:pop .18s ease-out;}
+  .modal.sm{max-width:420px;}
+  .modal.lg{max-width:680px;}
+  @keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+  .modal h3{font-size:19px;font-weight:800;margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-2);margin-bottom:6px;}
+  .field input,.field select,.field textarea{width:100%;padding:10px 13px;border:1px solid var(--line);border-radius:8px;background:var(--surface);}
+  .field input:focus,.field select:focus,.field textarea:focus,.toolbar input:focus,.toolbar select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft);}
+  .field .hint{font-size:12px;color:var(--ink-3);margin-top:5px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .check-row{display:flex;gap:22px;flex-wrap:wrap;margin:6px 0 4px;}
+  .check-row label{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;cursor:pointer;}
+  .check-row input{width:16px;height:16px;accent-color:var(--accent);}
+  .modal-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
+  .img-slot{display:flex;gap:10px;align-items:center;margin-bottom:10px;}
+  .img-slot .thumb{width:46px;height:46px;}
+  .img-slot input[type=text]{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:8px;}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;margin-bottom:20px;}
+  .detail-grid dt{font-size:12px;color:var(--ink-3);font-weight:600;}
+  .detail-grid dd{font-weight:600;word-break:break-word;}
+  .items{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:14px;}
+  .items div{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line-2);font-size:13.5px;}
+  .items div:last-child{border-bottom:none;}
+  .items .tot{background:#fafbfc;font-weight:800;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:10px;font-weight:600;font-size:13.5px;z-index:100;opacity:0;transition:all .25s ease;pointer-events:none;max-width:90vw;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.bad{background:var(--bad);}
+  #conn{padding:12px 16px;border-radius:10px;margin-bottom:20px;font-weight:600;font-size:13px;line-height:1.6;}
+  #conn.err{background:var(--bad-bg);color:var(--bad);}
+  #conn.warn{background:var(--warn-bg);color:var(--warn);}
+  #conn code{background:rgba(0,0,0,.07);padding:1px 5px;border-radius:4px;}
+
+  /* ---------- Responsive ---------- */
+  @media(max-width:1000px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .grid-2{grid-template-columns:1fr;}
+  }
+  @media(max-width:820px){
+    #app.show{display:block;}
+    aside.side{position:fixed;left:0;top:0;bottom:0;width:272px;z-index:40;transform:translateX(-100%);transition:transform .22s ease;}
+    aside.side.open{transform:none;}
+    .scrim.show{display:block;}
+    .topbar{display:flex;}
+    main{padding:22px 16px 50px;}
+    .field-row,.detail-grid{grid-template-columns:1fr;}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important;}}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="mark" data-mark></div>
+      <div><b data-brand-name></b><span data-brand-tag></span></div>
+    </div>
+    <h1>Connexion</h1>
+    <p>Connectez-vous pour gérer votre boutique.</p>
+    <div id="setupNote" class="setup-note hidden">
+      Supabase n'est pas encore configuré. Renseignez <code>CONFIG.supabase.url</code> et <code>CONFIG.supabase.anonKey</code> en haut du script.
+    </div>
+    <div id="loginErr" class="login-err hidden"></div>
+    <form id="loginForm">
+      <div class="field"><label for="lgEmail">Email</label><input id="lgEmail" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="lgPass">Mot de passe</label><input id="lgPass" type="password" autocomplete="current-password" required></div>
+      <button class="btn btn-solid" id="lgBtn" type="submit" style="width:100%;padding:12px;">Se connecter</button>
+    </form>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <div class="scrim" id="scrim"></div>
+  <aside class="side" id="side">
+    <div class="side-brand">
+      <div class="mark" data-mark></div>
+      <div><b data-brand-name></b><span data-brand-tag></span></div>
+    </div>
+    <nav class="nav" id="nav">
+      <button data-page="dashboard" class="active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Tableau de bord</button>
+      <button data-page="orders"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Commandes<span class="badge hidden" id="navPending">0</span></button>
+      <button data-page="products"><svg viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/></svg>Produits</button>
+      <button data-page="categories"><svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>Catégories</button>
+      <button data-page="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Réglages</button>
+    </nav>
+    <div class="side-foot">
+      <span class="who" id="whoAmI"></span>
+      <button id="logoutBtn">Se déconnecter</button>
+    </div>
+  </aside>
+
+  <div style="min-width:0;">
+    <div class="topbar">
+      <button class="burger" id="burger" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <div class="mark" data-mark style="width:28px;height:28px;font-size:13px;"></div>
+      <b data-brand-name></b>
+    </div>
+    <main>
+      <div id="conn" class="hidden"></div>
+
+      <!-- DASHBOARD -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-head"><div><h2>Tableau de bord</h2><p>Vue d'ensemble de votre activité.</p></div></div>
+        <div class="stats">
+          <div class="stat"><div class="l">Revenu total</div><div class="n num" id="stRevenue">—</div><div class="s" id="stRevenueSub"></div></div>
+          <div class="stat"><div class="l">Commandes</div><div class="n num" id="stOrders">—</div><div class="s" id="stOrdersSub"></div></div>
+          <div class="stat"><div class="l">En attente</div><div class="n num" id="stPending">—</div><div class="s">À traiter</div></div>
+          <div class="stat"><div class="l">Produits actifs</div><div class="n num" id="stProducts">—</div><div class="s" id="stProductsSub"></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><h3>Revenu des 7 derniers jours <small id="chartTotal"></small></h3><div class="chart" id="chart"></div></div>
+          <div class="card"><h3>Stock faible</h3><ul class="alert-list" id="lowStock"></ul></div>
+        </div>
+        <div class="card" style="padding:0;">
+          <h3 style="padding:18px 20px 0;">Dernières commandes</h3>
+          <div class="table-wrap" style="border:none;border-radius:0 0 10px 10px;">
+            <table><thead><tr><th>Client</th><th>Ville</th><th>Total</th><th>Statut</th><th>Date</th></tr></thead>
+            <tbody id="recentBody"></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section class="page" id="page-orders">
+        <div class="page-head">
+          <div><h2>Commandes</h2><p id="ordersCount"></p></div>
+          <div class="head-actions"><button class="btn btn-ghost" id="exportOrders">Exporter en CSV</button></div>
+        </div>
+        <div class="toolbar">
+          <input id="orderSearch" type="search" placeholder="Rechercher un client, un téléphone, un n°…">
+          <select id="orderFilter"><option value="">Tous les statuts</option></select>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>N°</th><th>Client</th><th>Téléphone</th><th>Ville</th><th>Total</th><th>Statut</th><th>Date</th></tr></thead>
+          <tbody id="ordersBody"></tbody>
+        </table></div>
+      </section>
+
+      <!-- PRODUCTS -->
+      <section class="page" id="page-products">
+        <div class="page-head">
+          <div><h2>Produits</h2><p id="productsCount"></p></div>
+          <div class="head-actions"><button class="btn btn-solid" id="addProduct">+ Ajouter un produit</button></div>
+        </div>
+        <div class="toolbar">
+          <input id="productSearch" type="search" placeholder="Rechercher un produit…">
+          <select id="productCat"><option value="">Toutes les catégories</option></select>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Produit</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Statut</th><th></th></tr></thead>
+          <tbody id="productsBody"></tbody>
+        </table></div>
+      </section>
+
+      <!-- CATEGORIES -->
+      <section class="page" id="page-categories">
+        <div class="page-head">
+          <div><h2>Catégories</h2><p>Organisez votre catalogue.</p></div>
+          <div class="head-actions"><button class="btn btn-solid" id="addCategory">+ Ajouter une catégorie</button></div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Nom</th><th>Slug</th><th>Icône</th><th>Produits</th><th></th></tr></thead>
+          <tbody id="categoriesBody"></tbody>
+        </table></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="page" id="page-settings">
+        <div class="page-head"><div><h2>Réglages</h2><p>Informations générales de la boutique.</p></div></div>
+        <div class="card" style="max-width:520px;">
+          <form id="settingsForm">
+            <div class="field"><label for="setStoreName">Nom de la boutique</label><input id="setStoreName"></div>
+            <div class="field"><label for="setEmail">Email de contact</label><input id="setEmail" type="email"></div>
+            <div class="field"><label for="setWhatsapp">WhatsApp</label><input id="setWhatsapp" placeholder="+212…"></div>
+            <div class="field"><label for="setDelivery">Frais de livraison</label><input id="setDelivery" type="number" step="0.01" min="0"></div>
+            <button class="btn btn-solid" type="submit">Enregistrer</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-bg" id="productModal">
+  <div class="modal lg">
+    <h3 id="pfTitle">Ajouter un produit</h3>
+    <form id="productForm">
+      <input type="hidden" id="pfId">
+      <div class="field-row">
+        <div class="field"><label for="pfName">Nom</label><input id="pfName" required></div>
+        <div class="field"><label for="pfSlug">Slug (URL)</label><input id="pfSlug" required></div>
+      </div>
+      <div class="field"><label for="pfCategory">Catégorie</label><select id="pfCategory" required></select></div>
+      <div class="field"><label for="pfDesc">Description</label><textarea id="pfDesc" rows="3"></textarea></div>
+      <div class="field-row">
+        <div class="field"><label for="pfPrice">Prix</label><input id="pfPrice" type="number" step="0.01" min="0" required></div>
+        <div class="field"><label for="pfOldPrice">Ancien prix (optionnel)</label><input id="pfOldPrice" type="number" step="0.01" min="0"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="pfStock">Stock</label><input id="pfStock" type="number" min="0" required></div>
+        <div class="field"><label for="pfBadge">Badge (optionnel)</label><input id="pfBadge" placeholder="Promo, Nouveau…"></div>
+      </div>
+      <div class="field">
+        <label>Images</label>
+        <div id="imgSlots"></div>
+        <div class="hint">Importez un fichier ou collez une URL. La première image est l'image principale.</div>
+      </div>
+      <div class="check-row">
+        <label><input type="checkbox" id="pfActive" checked> Visible en boutique</label>
+        <label><input type="checkbox" id="pfFeatured"> En vedette</label>
+        <label><input type="checkbox" id="pfSoldOut"> Rupture de stock</label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="productModal">Annuler</button>
+        <button type="submit" class="btn btn-solid" id="pfSave">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div class="modal-bg" id="categoryModal">
+  <div class="modal sm">
+    <h3 id="cfTitle">Ajouter une catégorie</h3>
+    <form id="categoryForm">
+      <input type="hidden" id="cfId">
+      <div class="field"><label for="cfName">Nom</label><input id="cfName" required></div>
+      <div class="field"><label for="cfSlug">Slug</label><input id="cfSlug" required></div>
+      <div class="field"><label for="cfIcon">Icône (optionnel)</label><input id="cfIcon" placeholder="ex : keyboard"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="categoryModal">Annuler</button>
+        <button type="submit" class="btn btn-solid">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="modal-bg" id="orderModal">
+  <div class="modal">
+    <h3 id="odTitle">Commande</h3>
+    <dl class="detail-grid" id="odInfo"></dl>
+    <div class="items" id="odItems"></div>
+    <div class="field"><label for="odStatus">Statut</label><select id="odStatus"></select></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" data-close="orderModal">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal sm">
+    <h3 id="cmTitle">Confirmer</h3>
+    <p id="cmText" style="color:var(--ink-2);"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" data-close="confirmModal">Annuler</button>
+      <button type="button" class="btn btn-danger" id="cmOk">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =====================================================================
+   CONFIG — the only block to edit for each new client
+   ===================================================================== */
+const CONFIG = {
+  brand: {
+    name: "name",          // business name shown in the admin
+    tagline: "Espace admin",     // small text under the name
+    logo: "",                    // image URL/path (e.g. "logo.png"). Empty = letter icon from the name
+    accent: "#2f4bd8"            // main color (hex)
+  },
+  supabase: {
+    url: "https://mmdmzgrzvzfwypxekpgu.supabase.co",                     // https://xxxx.supabase.co
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZG16Z3J6dnpmd3lweGVrcGd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExODY0NDMsImV4cCI6MjEwNjc2MjQ0M30.J62nV0r61Bjijss8IWw3FlNOoe52XQGuCn2WyOA5yoQ",                 // public anon key (never the service_role key)
+    storageBucket: "products"    // public bucket used for product image uploads
+  },
+  currency: "DH",
+  locale: "fr-FR",
+  lowStockThreshold: 5
+};
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => Number(n||0).toLocaleString(CONFIG.locale, {maximumFractionDigits:2}) + " " + CONFIG.currency;
+const fdate = d => d ? new Date(d).toLocaleDateString(CONFIG.locale) : "—";
+const slugify = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+let toastTimer;
+function toast(msg, bad){
+  const t = $("#toast"); t.textContent = msg; t.className = "toast show" + (bad ? " bad" : "");
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("show"), 2800);
+}
+function openModal(id){ $("#"+id).classList.add("show"); }
+function closeModal(id){ $("#"+id).classList.remove("show"); }
+function confirmDialog(title, text, okLabel="Supprimer"){
+  return new Promise(res=>{
+    $("#cmTitle").textContent = title; $("#cmText").textContent = text; $("#cmOk").textContent = okLabel;
+    openModal("confirmModal");
+    const done = v => { closeModal("confirmModal"); $("#cmOk").onclick = null; res(v); };
+    $("#cmOk").onclick = () => done(true);
+    $("#confirmModal").dataset.cancel = "1";
+    $("#confirmModal").__cancel = () => done(false);
+  });
+}
+
+/* =====================================================================
+   BRANDING
+   ===================================================================== */
+function applyBrand(){
+  const b = CONFIG.brand;
+  document.documentElement.style.setProperty("--accent", b.accent || "#2f4bd8");
+  document.title = "Admin — " + b.name;
+  $$("[data-brand-name]").forEach(e=>e.textContent = b.name);
+  $$("[data-brand-tag]").forEach(e=>e.textContent = b.tagline);
+  $$("[data-mark]").forEach(e=>{
+    e.innerHTML = b.logo ? `<img src="${esc(b.logo)}" alt="">` : esc((b.name||"?").trim().charAt(0).toUpperCase());
+  });
+  if(b.logo){
+    let l = document.querySelector('link[rel="icon"]');
+    if(!l){ l = document.createElement("link"); l.rel = "icon"; document.head.appendChild(l); }
+    l.href = b.logo;
+  }
+}
+
+/* =====================================================================
+   SUPABASE + AUTH
+   ===================================================================== */
+const configured = !!(CONFIG.supabase.url && CONFIG.supabase.anonKey);
+let sb = null;
+if(configured && window.supabase){
+  sb = window.supabase.createClient(CONFIG.supabase.url, CONFIG.supabase.anonKey);
+}
+let CATEGORIES = [], PRODUCTS = [], ORDERS = [], realtimeStarted = false;
+const STATUSES = ["Pending","Confirmed","Packed","Shipped","Delivered","Cancelled","Refunded"];
+const STATUS_LABEL = {Pending:"En attente",Confirmed:"Confirmée",Packed:"Préparée",Shipped:"Expédiée",Delivered:"Livrée",Cancelled:"Annulée",Refunded:"Remboursée"};
+const STATUS_CLASS = {Pending:"warn",Confirmed:"info",Packed:"info",Shipped:"info",Delivered:"ok",Cancelled:"off",Refunded:"bad"};
+const statusTag = s => `<span class="tag ${STATUS_CLASS[s]||'off'}">${esc(STATUS_LABEL[s]||s)}</span>`;
+
+$("#lgBtn").addEventListener("click", ()=>{}); // keeps button focusable on all browsers
+$("#loginForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const err = $("#loginErr"); err.classList.add("hidden");
+  if(!sb){ err.textContent = "Supabase n'est pas configuré."; err.classList.remove("hidden"); return; }
+  const btn = $("#lgBtn"); btn.disabled = true; btn.textContent = "Connexion…";
+  const {error} = await sb.auth.signInWithPassword({email:$("#lgEmail").value.trim(), password:$("#lgPass").value});
+  btn.disabled = false; btn.textContent = "Se connecter";
+  if(error){ err.textContent = "Email ou mot de passe incorrect."; err.classList.remove("hidden"); }
+});
+$("#logoutBtn").addEventListener("click", async ()=>{ if(sb) await sb.auth.signOut(); });
+
+function showLogin(){
+  $("#app").classList.remove("show"); $("#login").style.display = "grid";
+  $("#setupNote").classList.toggle("hidden", configured);
+}
+async function showApp(session){
+  $("#login").style.display = "none"; $("#app").classList.add("show");
+  $("#whoAmI").textContent = session.user.email;
+  await loadAll();
+  startRealtime();
+}
+async function boot(){
+  applyBrand();
+  if(!sb){ showLogin(); return; }
+  const {data:{session}} = await sb.auth.getSession();
+  session ? showApp(session) : showLogin();
+  sb.auth.onAuthStateChange((event, s)=>{
+    if(event === "SIGNED_IN" && s && !$("#app").classList.contains("show")) showApp(s);
+    if(event === "SIGNED_OUT") showLogin();
+  });
+}
+
+/* =====================================================================
+   NAVIGATION
+   ===================================================================== */
+function showPage(name){
+  $$(".page").forEach(p=>p.classList.toggle("active", p.id === "page-"+name));
+  $$("#nav button").forEach(b=>b.classList.toggle("active", b.dataset.page === name));
+  closeSide(); window.scrollTo({top:0});
+  if(name === "settings") loadSettings();
+}
+$("#nav").addEventListener("click", e=>{ const b = e.target.closest("button[data-page]"); if(b) showPage(b.dataset.page); });
+const openSide = ()=>{ $("#side").classList.add("open"); $("#scrim").classList.add("show"); };
+const closeSide = ()=>{ $("#side").classList.remove("open"); $("#scrim").classList.remove("show"); };
+$("#burger").addEventListener("click", openSide);
+$("#scrim").addEventListener("click", closeSide);
+document.addEventListener("click", e=>{
+  const c = e.target.closest("[data-close]"); if(c){ const m = c.dataset.close; if(m === "confirmModal" && $("#confirmModal").__cancel) $("#confirmModal").__cancel(); else closeModal(m); }
+  if(e.target.classList.contains("modal-bg")){ if(e.target.id === "confirmModal" && e.target.__cancel) e.target.__cancel(); else e.target.classList.remove("show"); }
+});
+document.addEventListener("keydown", e=>{ if(e.key === "Escape") $$(".modal-bg.show").forEach(m=>{ if(m.id==="confirmModal" && m.__cancel) m.__cancel(); else m.classList.remove("show"); }); });
+
+/* =====================================================================
+   DATA
+   ===================================================================== */
+function setConn(kind, html){
+  const el = $("#conn"); if(!kind){ el.className = "hidden"; return; }
+  el.className = kind; el.innerHTML = html;
+}
+async function checkConnection(){
+  const {error, count} = await sb.from("categories").select("*", {count:"exact", head:true});
+  if(error){ setConn("err", `Connexion à la base impossible : <code>${esc(error.message)}</code>. Vérifiez que <code>schema.sql</code> a été exécuté dans Supabase.`); return false; }
+  if(count === 0){ setConn("warn", `La base est connectée mais ne contient aucune catégorie. Créez-en une dans l'onglet Catégories avant d'ajouter des produits.`); return true; }
+  setConn(null); return true;
+}
+async function loadAll(){
+  await checkConnection();
+  await Promise.all([loadCategories(), loadProducts(), loadOrders()]);
+  renderAll();
+}
+async function loadCategories(){
+  const {data, error} = await sb.from("categories").select("*").order("name");
+  if(error){ toast("Catégories : " + error.message, true); return; }
+  CATEGORIES = data || [];
+}
+async function loadProducts(){
+  const {data, error} = await sb.from("products").select("*").order("id", {ascending:false});
+  if(error){ toast("Produits : " + error.message, true); return; }
+  PRODUCTS = data || [];
+}
+async function loadOrders(){
+  const {data, error} = await sb.from("orders").select("*, order_items(*)").order("created_at", {ascending:false});
+  if(error){ toast("Commandes : " + error.message, true); return; }
+  ORDERS = data || [];
+}
+function renderAll(){ renderDashboard(); renderOrders(); renderProducts(); renderCategories(); fillCategorySelects(); }
+function startRealtime(){
+  if(realtimeStarted) return; realtimeStarted = true;
+  const watch = (table, fn) => sb.channel("admin-"+table).on("postgres_changes",{event:"*",schema:"public",table},async()=>{ await fn(); renderAll(); }).subscribe();
+  watch("orders", loadOrders); watch("products", loadProducts); watch("categories", loadCategories);
+}
+
+/* =====================================================================
+   DASHBOARD
+   ===================================================================== */
+function renderDashboard(){
+  const valid = ORDERS.filter(o=>!["Cancelled","Refunded"].includes(o.status));
+  const revenue = valid.reduce((s,o)=>s+Number(o.total||0),0);
+  const pending = ORDERS.filter(o=>o.status === "Pending").length;
+  const active = PRODUCTS.filter(p=>p.active);
+  const month = new Date(); month.setDate(1); month.setHours(0,0,0,0);
+  const monthRev = valid.filter(o=>new Date(o.created_at) >= month).reduce((s,o)=>s+Number(o.total||0),0);
+
+  $("#stRevenue").textContent = money(revenue);
+  $("#stRevenueSub").textContent = money(monthRev) + " ce mois-ci";
+  $("#stOrders").textContent = ORDERS.length;
+  $("#stOrdersSub").textContent = valid.length ? "Panier moyen " + money(revenue/valid.length) : "";
+  $("#stPending").textContent = pending;
+  $("#stProducts").textContent = active.length;
+  $("#stProductsSub").textContent = PRODUCTS.length - active.length ? (PRODUCTS.length - active.length) + " masqué(s)" : "";
+  const nb = $("#navPending"); nb.textContent = pending; nb.classList.toggle("hidden", !pending);
+
+  // 7-day chart
+  const days = [];
+  for(let i=6;i>=0;i--){ const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i); days.push(d); }
+  const sums = days.map(d=>{
+    const next = new Date(d); next.setDate(next.getDate()+1);
+    return valid.filter(o=>{ const t = new Date(o.created_at); return t>=d && t<next; }).reduce((s,o)=>s+Number(o.total||0),0);
+  });
+  const max = Math.max(...sums, 1);
+  $("#chartTotal").textContent = money(sums.reduce((a,b)=>a+b,0));
+  $("#chart").innerHTML = days.map((d,i)=>`
+    <div class="bar-col" title="${esc(d.toLocaleDateString(CONFIG.locale))} : ${esc(money(sums[i]))}">
+      <span class="v num">${sums[i] ? Math.round(sums[i]).toLocaleString(CONFIG.locale) : ""}</span>
+      <div class="bar" style="height:${Math.max(2,(sums[i]/max)*100)}%"></div>
+      <span class="d">${esc(d.toLocaleDateString(CONFIG.locale,{weekday:"short"}))}</span>
+    </div>`).join("");
+
+  // low stock
+  const low = PRODUCTS.filter(p=>p.active && Number(p.stock) <= CONFIG.lowStockThreshold).sort((a,b)=>a.stock-b.stock).slice(0,6);
+  $("#lowStock").innerHTML = low.length
+    ? low.map(p=>`<li><span>${esc(p.name)}</span><em>${Number(p.stock) === 0 ? "Épuisé" : p.stock + " restant(s)"}</em></li>`).join("")
+    : `<li style="color:var(--ink-3)">Tous vos produits sont bien approvisionnés.</li>`;
+
+  const recent = ORDERS.slice(0,6);
+  $("#recentBody").innerHTML = recent.length ? recent.map(o=>`
+    <tr class="click" data-order="${esc(o.id)}">
+      <td>${esc(o.customer_name)}</td><td>${esc(o.city||"—")}</td><td class="num">${esc(money(o.total))}</td>
+      <td>${statusTag(o.status)}</td><td>${esc(fdate(o.created_at))}</td>
+    </tr>`).join("") : `<tr><td colspan="5"><div class="empty"><b>Aucune commande</b>Les nouvelles commandes apparaîtront ici.</div></td></tr>`;
+}
+$("#recentBody").addEventListener("click", e=>{ const r = e.target.closest("[data-order]"); if(r) openOrder(r.dataset.order); });
+
+/* =====================================================================
+   ORDERS
+   ===================================================================== */
+$("#orderFilter").innerHTML += STATUSES.map(s=>`<option value="${s}">${STATUS_LABEL[s]}</option>`).join("");
+$("#odStatus").innerHTML = STATUSES.map(s=>`<option value="${s}">${STATUS_LABEL[s]}</option>`).join("");
+function filteredOrders(){
+  const q = $("#orderSearch").value.trim().toLowerCase(), f = $("#orderFilter").value;
+  return ORDERS.filter(o=>(!f || o.status === f) &&
+    (!q || [o.id,o.customer_name,o.phone,o.city].some(v=>String(v??"").toLowerCase().includes(q))));
+}
+function renderOrders(){
+  const list = filteredOrders();
+  $("#ordersCount").textContent = ORDERS.length + " commande(s) au total";
+  $("#ordersBody").innerHTML = list.length ? list.map(o=>`
+    <tr class="click" data-order="${esc(o.id)}">
+      <td class="num">#${esc(o.id)}</td><td>${esc(o.customer_name)}</td><td>${esc(o.phone||"—")}</td>
+      <td>${esc(o.city||"—")}</td><td class="num">${esc(money(o.total))}</td>
+      <td>${statusTag(o.status)}</td><td>${esc(fdate(o.created_at))}</td>
+    </tr>`).join("") : `<tr><td colspan="7"><div class="empty"><b>${ORDERS.length ? "Aucun résultat" : "Aucune commande"}</b>${ORDERS.length ? "Modifiez votre recherche ou le filtre." : "Les nouvelles commandes apparaîtront ici."}</div></td></tr>`;
+}
+$("#orderSearch").addEventListener("input", renderOrders);
+$("#orderFilter").addEventListener("change", renderOrders);
+$("#ordersBody").addEventListener("click", e=>{ const r = e.target.closest("[data-order]"); if(r) openOrder(r.dataset.order); });
+
+let currentOrderId = null;
+function openOrder(id){
+  const o = ORDERS.find(x=>String(x.id) === String(id)); if(!o) return;
+  currentOrderId = o.id;
+  $("#odTitle").textContent = "Commande #" + o.id;
+  $("#odInfo").innerHTML = [
+    ["Client", o.customer_name], ["Téléphone", o.phone||"—"], ["Ville", o.city||"—"],
+    ["Date", new Date(o.created_at).toLocaleString(CONFIG.locale)], ["Adresse", o.address||"—"], ["Note", o.notes||"—"]
+  ].map(([k,v])=>`<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
+  const items = o.order_items || [];
+  $("#odItems").innerHTML = (items.length ? items.map(i=>`<div><span>${esc(i.name||"Produit")} × ${esc(i.quantity)}</span><span class="num">${esc(money(Number(i.price)*Number(i.quantity)))}</span></div>`).join("") : `<div style="color:var(--ink-3)">Aucun détail d'article.</div>`)
+    + `<div class="tot"><span>Total</span><span class="num">${esc(money(o.total))}</span></div>`;
+  $("#odStatus").value = o.status;
+  openModal("orderModal");
+}
+$("#odStatus").addEventListener("change", async e=>{
+  const {error} = await sb.from("orders").update({status:e.target.value}).eq("id", currentOrderId);
+  if(error){ toast("Erreur : " + error.message, true); return; }
+  const o = ORDERS.find(x=>x.id === currentOrderId); if(o) o.status = e.target.value;
+  renderAll(); toast("Statut mis à jour");
+});
+$("#exportOrders").addEventListener("click", ()=>{
+  const rows = [["N°","Client","Téléphone","Ville","Adresse","Total","Statut","Date"]]
+    .concat(filteredOrders().map(o=>[o.id,o.customer_name,o.phone,o.city,o.address,o.total,o.status,new Date(o.created_at).toISOString()]));
+  const csv = rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download = "commandes-" + new Date().toISOString().slice(0,10) + ".csv"; a.click(); URL.revokeObjectURL(a.href);
+});
+
+/* =====================================================================
+   PRODUCTS
+   ===================================================================== */
+function fillCategorySelects(){
+  const opts = CATEGORIES.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+  $("#pfCategory").innerHTML = `<option value="" disabled selected>Choisir une catégorie</option>` + opts;
+  const cur = $("#productCat").value;
+  $("#productCat").innerHTML = `<option value="">Toutes les catégories</option>` + opts;
+  $("#productCat").value = cur;
+}
+function renderProducts(){
+  const q = $("#productSearch").value.trim().toLowerCase(), cat = $("#productCat").value;
+  const list = PRODUCTS.filter(p=>(!cat || String(p.category_id) === cat) && (!q || String(p.name).toLowerCase().includes(q)));
+  $("#productsCount").textContent = PRODUCTS.length + " produit(s) au catalogue";
+  $("#productsBody").innerHTML = list.length ? list.map(p=>{
+    const c = CATEGORIES.find(x=>x.id === p.category_id);
+    const out = p.sold_out || Number(p.stock) === 0;
+    return `<tr>
+      <td><div class="cell-prod"><div class="thumb">${p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy" onerror="this.remove()">` : "—"}</div>
+        <div><b>${esc(p.name)}</b><span>${esc(p.badge||"")}</span></div></div></td>
+      <td>${esc(c ? c.name : "—")}</td>
+      <td class="num">${esc(money(p.price))}${p.old_price ? `<br><span style="color:var(--ink-3);text-decoration:line-through;font-size:12px">${esc(money(p.old_price))}</span>` : ""}</td>
+      <td class="num">${esc(p.stock)}</td>
+      <td>${out ? '<span class="tag bad">Rupture</span>' : (p.active ? '<span class="tag ok">Actif</span>' : '<span class="tag off">Masqué</span>')}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-ghost btn-sm" data-edit="${esc(p.id)}">Modifier</button>
+        <button class="btn btn-danger btn-sm" data-del="${esc(p.id)}">Supprimer</button></div></td>
+    </tr>`;
+  }).join("") : `<tr><td colspan="6"><div class="empty"><b>${PRODUCTS.length ? "Aucun résultat" : "Aucun produit"}</b>${PRODUCTS.length ? "Modifiez votre recherche ou le filtre." : "Ajoutez votre premier produit pour commencer."}</div></td></tr>`;
+}
+$("#productSearch").addEventListener("input", renderProducts);
+$("#productCat").addEventListener("change", renderProducts);
+$("#productsBody").addEventListener("click", e=>{
+  const ed = e.target.closest("[data-edit]"), dl = e.target.closest("[data-del]");
+  if(ed) openProductForm(ed.dataset.edit);
+  if(dl) deleteProduct(dl.dataset.del);
+});
+$("#addProduct").addEventListener("click", ()=>openProductForm());
+$("#pfName").addEventListener("input", e=>{ if(!$("#pfId").value) $("#pfSlug").value = slugify(e.target.value); });
+
+let pfImages = ["","",""];
+function renderImgSlots(){
+  $("#imgSlots").innerHTML = pfImages.map((u,i)=>`
+    <div class="img-slot">
+      <div class="thumb">${u ? `<img src="${esc(u)}" alt="" onerror="this.remove()">` : i+1}</div>
+      <input type="text" data-url="${i}" value="${esc(u)}" placeholder="URL de l'image ${i+1}${i?" (optionnel)":""}">
+      <label class="btn btn-ghost btn-sm" style="cursor:pointer;">Importer<input type="file" accept="image/*" data-file="${i}" hidden></label>
+    </div>`).join("");
+}
+$("#imgSlots").addEventListener("input", e=>{ if(e.target.dataset.url !== undefined) pfImages[+e.target.dataset.url] = e.target.value.trim(); });
+$("#imgSlots").addEventListener("change", async e=>{
+  const i = e.target.dataset.file; if(i === undefined || !e.target.files[0]) return;
+  const f = e.target.files[0];
+  if(f.size > 5*1024*1024){ toast("Image trop lourde (5 Mo max)", true); return; }
+  const path = Date.now() + "-" + f.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+  toast("Import en cours…");
+  const {error} = await sb.storage.from(CONFIG.supabase.storageBucket).upload(path, f, {cacheControl:"3600", upsert:false});
+  if(error){ toast("Import impossible : " + error.message, true); return; }
+  pfImages[+i] = sb.storage.from(CONFIG.supabase.storageBucket).getPublicUrl(path).data.publicUrl;
+  renderImgSlots(); toast("Image importée");
+});
+function openProductForm(id){
+  if(!sb) return;
+  if(!CATEGORIES.length){ toast("Créez d'abord une catégorie", true); showPage("categories"); return; }
+  $("#productForm").reset(); $("#pfId").value = ""; pfImages = ["","",""];
+  $("#pfTitle").textContent = id ? "Modifier le produit" : "Ajouter un produit";
+  if(id){
+    const p = PRODUCTS.find(x=>String(x.id) === String(id)); if(!p) return;
+    $("#pfId").value = p.id; $("#pfName").value = p.name; $("#pfSlug").value = p.slug;
+    $("#pfCategory").value = p.category_id; $("#pfDesc").value = p.description||"";
+    $("#pfPrice").value = p.price; $("#pfOldPrice").value = p.old_price ?? ""; $("#pfStock").value = p.stock;
+    $("#pfBadge").value = p.badge||""; pfImages = [p.image||"", p.image_2||"", p.image_3||""];
+    $("#pfActive").checked = !!p.active; $("#pfFeatured").checked = !!p.featured; $("#pfSoldOut").checked = !!p.sold_out;
+  }
+  renderImgSlots(); openModal("productModal");
+}
+$("#productForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const id = $("#pfId").value, btn = $("#pfSave"); btn.disabled = true;
+  const values = {
+    name: $("#pfName").value.trim(), slug: $("#pfSlug").value.trim(),
+    category_id: Number($("#pfCategory").value), description: $("#pfDesc").value.trim(),
+    price: Number($("#pfPrice").value), old_price: $("#pfOldPrice").value ? Number($("#pfOldPrice").value) : null,
+    stock: Number($("#pfStock").value), badge: $("#pfBadge").value.trim() || null,
+    image: pfImages[0] || null, image_2: pfImages[1] || null, image_3: pfImages[2] || null,
+    active: $("#pfActive").checked, featured: $("#pfFeatured").checked, sold_out: $("#pfSoldOut").checked
+  };
+  const {error} = id ? await sb.from("products").update(values).eq("id", id) : await sb.from("products").insert(values);
+  btn.disabled = false;
+  if(error){ toast("Erreur : " + error.message, true); return; }
+  toast("Produit enregistré"); closeModal("productModal"); await loadProducts(); renderAll();
+});
+async function deleteProduct(id){
+  if(!await confirmDialog("Supprimer ce produit ?", "Cette action est définitive.")) return;
+  const {error} = await sb.from("products").delete().eq("id", id);
+  if(error){ toast("Erreur : " + error.message, true); return; }
+  toast("Produit supprimé"); await loadProducts(); renderAll();
+}
+
+/* =====================================================================
+   CATEGORIES
+   ===================================================================== */
+function renderCategories(){
+  $("#categoriesBody").innerHTML = CATEGORIES.length ? CATEGORIES.map(c=>`
+    <tr>
+      <td><b>${esc(c.name)}</b></td><td>${esc(c.slug)}</td><td>${esc(c.icon||"—")}</td>
+      <td class="num">${PRODUCTS.filter(p=>p.category_id === c.id).length}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-ghost btn-sm" data-cedit="${esc(c.id)}">Modifier</button>
+        <button class="btn btn-danger btn-sm" data-cdel="${esc(c.id)}">Supprimer</button></div></td>
+    </tr>`).join("") : `<tr><td colspan="5"><div class="empty"><b>Aucune catégorie</b>Créez une catégorie pour classer vos produits.</div></td></tr>`;
+}
+$("#categoriesBody").addEventListener("click", e=>{
+  const ed = e.target.closest("[data-cedit]"), dl = e.target.closest("[data-cdel]");
+  if(ed) openCategoryForm(ed.dataset.cedit);
+  if(dl) deleteCategory(dl.dataset.cdel);
+});
+$("#addCategory").addEventListener("click", ()=>openCategoryForm());
+$("#cfName").addEventListener("input", e=>{ if(!$("#cfId").value) $("#cfSlug").value = slugify(e.target.value); });
+function openCategoryForm(id){
+  $("#categoryForm").reset(); $("#cfId").value = "";
+  $("#cfTitle").textContent = id ? "Modifier la catégorie" : "Ajouter une catégorie";
+  if(id){
+    const c = CATEGORIES.find(x=>String(x.id) === String(id)); if(!c) return;
+    $("#cfId").value = c.id; $("#cfName").value = c.name; $("#cfSlug").value = c.slug; $("#cfIcon").value = c.icon||"";
+  }
+  openModal("categoryModal");
+}
+$("#categoryForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const id = $("#cfId").value;
+  const values = {name:$("#cfName").value.trim(), slug:$("#cfSlug").value.trim(), icon:$("#cfIcon").value.trim() || null};
+  const {error} = id ? await sb.from("categories").update(values).eq("id", id) : await sb.from("categories").insert(values);
+  if(error){ toast("Erreur : " + error.message, true); return; }
+  toast("Catégorie enregistrée"); closeModal("categoryModal"); await loadCategories(); await checkConnection(); renderAll();
+});
+async function deleteCategory(id){
+  if(!await confirmDialog("Supprimer cette catégorie ?", "Les produits liés n'auront plus de catégorie.")) return;
+  const {error} = await sb.from("categories").delete().eq("id", id);
+  if(error){ toast("Erreur : " + error.message, true); return; }
+  toast("Catégorie supprimée"); await Promise.all([loadCategories(), loadProducts()]); renderAll();
+}
+
+/* =====================================================================
+   SETTINGS
+   ===================================================================== */
+async function loadSettings(){
+  if(!sb) return;
+  const {data} = await sb.from("settings").select("*").eq("id",1).maybeSingle();
+  if(data){
+    $("#setStoreName").value = data.store_name||""; $("#setEmail").value = data.email||"";
+    $("#setWhatsapp").value = data.whatsapp||""; $("#setDelivery").value = data.delivery_price ?? "";
+  }
+}
+$("#settingsForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const values = {id:1, store_name:$("#setStoreName").value.trim(), email:$("#setEmail").value.trim(),
+    whatsapp:$("#setWhatsapp").value.trim(), delivery_price:Number($("#setDelivery").value)||0};
+  const {error} = await sb.from("settings").upsert(values);
+  if(error){ toast("Erreur : " + error.message, true); return; }
+  toast("Réglages enregistrés");
+});
+
+boot();
+</script>
+</body>
+</html>
