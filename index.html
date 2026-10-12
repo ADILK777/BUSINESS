@@ -4,10 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#14a35f">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- CSP : limite les scripts/requêtes aux domaines utilisés. Si votre projet Supabase utilise un domaine personnalisé,
+     ajoutez-le dans connect-src. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src https://*.supabase.co wss://*.supabase.co; base-uri 'none'; form-action 'none'">
 <title>Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--ac:#14a35f;--acs:color-mix(in srgb,var(--ac) 12%,var(--sf));--bg:#f4f6f8;--sf:#fff;--ink:#12151c;--i2:#4a5160;--i3:#8189997a;--i3:#7b8394;--ln:#e6e9ee;--ok:#16a34a;--okb:#dcf5e5;--wn:#b45309;--wnb:#fdf0d0;--bd:#dc2626;--bdb:#fde4e4;--inf:#2f5bea;--infb:#e4ebfd;--mu:#eef0f4;--r:12px}
+:root{--ac:#14a35f;--acs:color-mix(in srgb,var(--ac) 12%,var(--sf));--bg:#f4f6f8;--sf:#fff;--ink:#12151c;--i2:#4a5160;--i3:#667085;--ln:#e6e9ee;--ok:#16a34a;--okb:#dcf5e5;--wn:#b45309;--wnb:#fdf0d0;--bd:#dc2626;--bdb:#fde4e4;--inf:#2f5bea;--infb:#e4ebfd;--mu:#eef0f4;--r:12px}
 [data-t=dark]{--bg:#0f1318;--sf:#171c23;--ink:#eef1f5;--i2:#b4bcc9;--i3:#808a9a;--ln:#262d37;--okb:#12301f;--wnb:#33280f;--bdb:#3a1a1a;--infb:#18264a;--mu:#212832}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:14px/1.5 Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
@@ -46,7 +51,7 @@ main{padding:28px 40px 60px;min-width:0}
 .ban{background:linear-gradient(120deg,#0f8f52,#19b36b);color:#fff;border-radius:var(--r);padding:24px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:18px}
 .ban h2{font-size:21px;font-weight:800}.ban p{opacity:.9;margin-top:4px}
 .ban .mi{display:flex;gap:10px;flex-wrap:wrap}.ban .mi div{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:10px 18px;text-align:center;min-width:92px}.ban .mi b{display:block;font-size:22px;font-weight:800}.ban .mi span{font-size:11.5px;opacity:.9}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stats{display:grid;grid-template-columns:repeat(var(--n,4),1fr);gap:14px;margin-bottom:18px}
 .st{background:var(--sf);border:1px solid var(--ln);border-radius:var(--r);padding:18px;display:flex;gap:14px;align-items:center}
 .st .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;flex-shrink:0}
 .st .ic.ok{background:var(--okb);color:var(--ok)}.st .ic.inf{background:var(--infb);color:var(--inf)}.st .ic.bd{background:var(--bdb);color:var(--bd)}.st .ic.wn{background:var(--wnb);color:var(--wn)}
@@ -91,16 +96,25 @@ td b{font-weight:700}td small{display:block;color:var(--i3);font-size:12px}
 .ov2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ov2>div{background:var(--bg);border-radius:12px;padding:18px 10px;text-align:center}.ov2 b{display:block;font-size:22px;font-weight:800;line-height:1.2}.ov2 span{font-size:12px;color:var(--i3);font-weight:600}
 .bar select{flex:0 1 230px}
 @media print{aside,.top,.acts{display:none}}
+.lnk{display:block;margin:14px auto 0;color:var(--i3);font-size:12.5px;text-decoration:underline}.lnk:hover{color:var(--ac)}
+.bdg{margin-left:auto;background:var(--bd);color:#fff;border-radius:20px;font-size:11px;font-weight:800;padding:1px 8px}
+.pgn{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px;color:var(--i3);font-size:13px;flex-wrap:wrap}.pgn span{margin-right:auto}
+.errs{margin:12px 0 0 18px;color:var(--bd);font-size:13px}.hint{color:var(--i3);font-size:12.5px;margin-top:10px}
+.md{overscroll-behavior:contain}
+.top .sr{min-width:0}.av,.ib{flex-shrink:0}
+@media(max-width:820px){.top{gap:8px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
+<noscript><p style="padding:24px">Activez JavaScript pour utiliser ce logiciel.</p></noscript>
 <div id="login"><div class="lc">
   <div class="lb"><div class="mark" data-mk></div><div><b data-bn></b><span data-bt></span></div></div>
   <h1>Connexion</h1><p>Connectez-vous pour accéder à votre espace.</p>
-  <div id="le" class="err hidden"></div>
-  <form id="lf"><div class="fd"><label>Email</label><input id="em" type="email" autocomplete="username" required></div>
-  <div class="fd"><label>Mot de passe</label><input id="pw" type="password" autocomplete="current-password" required></div>
-  <button class="btn" id="lb" style="width:100%;padding:12px">Se connecter</button></form><div data-vd style="margin-top:24px"></div>
+  <div id="le" class="err hidden" role="alert"></div>
+  <form id="lf"><div class="fd"><label for="em">Email</label><input id="em" type="email" autocomplete="username" required></div>
+  <div class="fd"><label for="pw">Mot de passe</label><input id="pw" type="password" autocomplete="current-password" required></div>
+  <button class="btn" id="lb" style="width:100%;padding:12px">Se connecter</button><button type="button" class="lnk" id="fp">Mot de passe oublié ?</button></form><div data-vd style="margin-top:24px"></div>
 </div></div>
 
 <div id="app">
@@ -122,7 +136,7 @@ td b{font-weight:700}td small{display:block;color:var(--i3);font-size:12px}
 </div>
 <div id="mroot"></div><div class="ts" id="ts" role="status"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" crossorigin="anonymous"></script>
 <script>
 /* ================= CONFIG — seul bloc à modifier pour chaque client ================= */
 const C={
@@ -135,26 +149,42 @@ const C={
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>Number(n||0).toLocaleString(C.locale,{maximumFractionDigits:2})+" "+C.currency;
-const fd=d=>d?new Date(d).toLocaleDateString(C.locale):"—";
+const ld=d=>new Date(/^\d{4}-\d{2}-\d{2}$/.test(d)?d+'T00:00:00':d),fd=d=>d?ld(d).toLocaleDateString(C.locale):"—";
 const tag=(t,k)=>`<span class="tag ${k}">${esc(t)}</span>`;
 const sum=(a,f)=>a.reduce((s,x)=>s+Number(f(x)||0),0);
+/* Sécurité : seules les URLs http(s) sont acceptées (bloque javascript:, data:, etc.) */
+const safeUrl=u=>{u=String(u||'').trim();if(!u)return'';try{const x=new URL(u,location.href);return(x.protocol==='https:'||x.protocol==='http:')?x.href:''}catch(e){return''}};
+const num=s=>{s=String(s??'').trim();if(s==='')return 0;const v=Number(s.replace(/\s/g,'').replace(',','.'));return Number.isFinite(v)?v:NaN};
+/* Messages d'erreur lisibles : on n'affiche jamais le texte brut de la base de données au client */
+const errMsg=e=>{const c=e&&e.code,m=String((e&&e.message)||'');console.error(e);
+  if(c==='23505')return'Cette valeur existe déjà (ex. SKU en double).';
+  if(c==='23503')return"Opération impossible : cet élément est lié à d'autres données (ex. produit déjà vendu). Désactivez-le plutôt que de le supprimer.";
+  if(c==='23514'||c==='22P02'||c==='22003')return'Valeur invalide.';
+  if(c==='42501'||c==='PGRST301'||/jwt|row-level security/i.test(m))return'Action non autorisée ou session expirée. Reconnectez-vous.';
+  if(c==='P0001'&&m)return m;
+  if(e&&e.status===422)return"Mot de passe refusé (trop faible ou identique à l'ancien).";
+  if(/failed to fetch|network/i.test(m))return'Connexion impossible. Vérifiez votre réseau.';
+  return'Une erreur est survenue. Réessayez.'};
 const nm=(t,id)=>(D[t].find(x=>x.id===id)||{}).name||"—";
 const stk=p=>p.qty<=0?tag('Rupture','bad'):p.qty<=p.min_stock?tag('Stock faible','warn'):tag('En stock','ok');
 const pay=s=>Number(s.paid)>=Number(s.total)?tag('Payée','ok'):Number(s.paid)>0?tag('Partielle','warn'):tag('Impayée','bad');
 const IC={grid:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',box:'<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>',tag:'<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/>',cart:'<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L21 8H6"/>',bag:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 21a7 7 0 0 1 14 0M17 4.5a3.5 3.5 0 0 1 0 7M22 21a7 7 0 0 0-4-6.3"/>',truck:'<path d="M1 4h13v12H1zM14 8h4l4 4v4h-8"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',wallet:'<path d="M20 7H5a2 2 0 0 1 0-4h13v4zM3 5v14a2 2 0 0 0 2 2h15V7"/><circle cx="16" cy="14" r="1.2"/>',chart:'<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',cog:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',dollar:'<path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',ok:'<path d="m5 12 5 5 9-10"/>',warn:'<path d="M12 3 2 21h20zM12 10v5M12 18h.01"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',trend:'<path d="m3 17 6-6 4 4 8-8M15 7h6v6"/>'};
 const ic=n=>`<svg class="i" viewBox="0 0 24 24">${IC[n]||''}</svg>`;
 let toastT;const toast=(m,bad)=>{const t=$('#ts');t.textContent=m;t.className='ts show'+(bad?' bad':'');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800)};
-const modal=h=>{$('#mroot').innerHTML=`<div class="mb"><div class="md">${h}</div></div>`};
-const closeM=()=>{$('#mroot').innerHTML=''};
+let lastF=null;
+const modal=h=>{lastF=document.activeElement;$('#mroot').innerHTML=`<div class="mb"><div class="md" role="dialog" aria-modal="true">${h}</div></div>`;
+  const m=$('.md'),t=m.querySelector('h3');if(t){t.id='mt';m.setAttribute('aria-labelledby','mt')}
+  setTimeout(()=>{const f=m.querySelector('input:not([type=hidden]):not([type=file]),select,textarea,button');f&&f.focus()},0)};
+const closeM=()=>{$('#mroot').innerHTML='';if(lastF&&lastF.focus&&document.contains(lastF))lastF.focus();lastF=null};
 document.addEventListener('click',e=>{if(e.target.closest('[data-x]')||e.target.classList.contains('mb'))closeM()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
 
 /* ---------- brand + supabase ---------- */
 let B={...C.brand},V={...C.vendor};const cfg=!!(C.supabase.url&&C.supabase.anonKey);
 function brand(){const b=S||{},n=b.store_name||C.brand.name;
-  B={name:n,tag:b.tagline??C.brand.tag,logo:b.logo||C.brand.logo,accent:/^#[0-9a-f]{6}$/i.test(b.accent||'')?b.accent:C.brand.accent};
+  B={name:n,tag:b.tagline??C.brand.tag,logo:safeUrl(b.logo)||safeUrl(C.brand.logo),accent:/^#[0-9a-f]{6}$/i.test(b.accent||'')?b.accent:C.brand.accent};
   if(b.currency)C.currency=b.currency;
-  V={name:b.vendor_name||C.vendor.name,tag:b.vendor_tag||C.vendor.tag,logo:b.vendor_logo||C.vendor.logo,url:b.vendor_url||C.vendor.url};
+  V={name:b.vendor_name||C.vendor.name,tag:b.vendor_tag||C.vendor.tag,logo:safeUrl(b.vendor_logo||C.vendor.logo),url:safeUrl(b.vendor_url||C.vendor.url)};
   document.documentElement.style.setProperty('--ac',B.accent);document.title=n+' — Admin';
   $$('[data-bn]').forEach(e=>e.textContent=n);$$('[data-bt]').forEach(e=>e.textContent=B.tag||'');
   $$('[data-mk]').forEach(e=>e.innerHTML=B.logo?`<img src="${esc(B.logo)}" alt="">`:esc((n.trim()[0]||'?').toUpperCase()));
@@ -173,38 +203,48 @@ $('#lf').onsubmit=async e=>{e.preventDefault();const er=$('#le');er.classList.ad
   const {error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
   b.disabled=false;b.textContent='Se connecter';if(error){er.textContent='Email ou mot de passe incorrect.';er.classList.remove('hidden')}};
 $('#lo').onclick=()=>sb&&sb.auth.signOut();
-function showLogin(){$('#app').classList.remove('show');$('#login').style.display='grid'}
+$('#fp').onclick=async()=>{const er=$('#le'),m=$('#em').value.trim();if(!sb)return;
+  if(!m){er.textContent="Saisissez votre email ci-dessus, puis cliquez à nouveau sur « Mot de passe oublié ».";er.classList.remove('hidden');return}
+  await sb.auth.resetPasswordForEmail(m,{redirectTo:location.origin+location.pathname});
+  er.textContent="Si ce compte existe, un email de réinitialisation vient d'être envoyé.";er.classList.remove('hidden')};
+function pwModal(){modal(`<h3>Nouveau mot de passe</h3><form id="pf"><div class="fd"><label for="np">Nouveau mot de passe (8 caractères minimum)</label><input id="np" type="password" minlength="8" autocomplete="new-password" required></div><div class="ma"><button class="btn">Enregistrer</button></div></form>`);
+  $('#pf').onsubmit=async e=>{e.preventDefault();const {error}=await sb.auth.updateUser({password:$('#np').value});if(error)return toast(errMsg(error),1);closeM();toast('Mot de passe mis à jour')}}
+function showLogin(){$('#app').classList.remove('show');$('#login').style.display='grid';$('#view').innerHTML='';for(const k in D)D[k]=[]}
 async function showApp(s){$('#login').style.display='none';$('#app').classList.add('show');
   const mail=s.user.email;$('#who').textContent=mail;$('#av').textContent=mail[0].toUpperCase();window.ME=mail.split('@')[0];await load()}
 (async()=>{if(!sb){showLogin();return}
   const {data:{session}}=await sb.auth.getSession();session?showApp(session):showLogin();
-  sb.auth.onAuthStateChange((ev,s)=>{if(ev==='SIGNED_IN'&&s&&!$('#app').classList.contains('show'))showApp(s);if(ev==='SIGNED_OUT')showLogin()})})();
+  sb.auth.onAuthStateChange((ev,s)=>{if(ev==='SIGNED_IN'&&s&&!$('#app').classList.contains('show'))showApp(s);if(ev==='SIGNED_OUT')showLogin();if(ev==='PASSWORD_RECOVERY')setTimeout(pwModal,400)})})();
 
+let LN=0;
+/* PostgREST renvoie 1000 lignes max par requête : on pagine pour ne jamais tronquer les totaux */
+async function fetchAll(k){const out=[],N=1000;for(let f=0;;f+=N){const {data,error}=await sb.from(k).select(Q[k]).order('id',{ascending:false}).range(f,f+N-1);if(error)return {error};out.push(...(data||[]));if(!data||data.length<N)return {data:out}}}
 async function load(){
-  let fail=null;
-  await Promise.all(Object.keys(Q).map(async k=>{const {data,error}=await sb.from(k).select(Q[k]).order('id',{ascending:false});if(error)fail=fail||error;else D[k]=data||[]}));
-  const {data:st}=await sb.from('settings').select('*').eq('id',1).maybeSingle();S=st||{};try{localStorage.setItem('bs',JSON.stringify(S))}catch(e){}brand();
+  const my=++LN;let fail=null;const R={};
+  await Promise.all(Object.keys(Q).map(async k=>{const {data,error}=await fetchAll(k);if(error)fail=fail||error;else R[k]=data}));
+  const {data:st}=await sb.from('settings').select('*').eq('id',1).maybeSingle();
+  if(my!==LN)return;Object.assign(D,R);S=st||S;try{localStorage.setItem('bs',JSON.stringify(S))}catch(e){}brand();
   const cn=$('#cn');if(fail){cn.textContent='Base de données : '+fail.message+' — exécutez schema.sql dans Supabase.';cn.classList.remove('hidden')}else cn.classList.add('hidden');
-  go()}
+  badge();go()}
 
 /* ---------- navigation ---------- */
-const PAGES=[['dashboard','Tableau de bord','grid','PRINCIPAL'],['products','Produits','box'],['categories','Catégories','tag'],['sales','Ventes','cart','TRANSACTIONS'],['purchases','Achats','bag'],['expenses','Dépenses','wallet'],['customers','Clients','users','CONTACTS'],['suppliers','Fournisseurs','truck'],['reports','Rapports','chart','ANALYSE'],['settings','Réglages','cog']];
-$('#nv').innerHTML=PAGES.map(p=>(p[3]?`<small>${p[3]}</small>`:'')+`<a href="#${p[0]}" data-p="${p[0]}">${ic(p[2])}${p[1]}</a>`).join('');
+const PAGES=[['dashboard','Tableau de bord','grid','PRINCIPAL'],['products','Produits','box'],['alerts','Alertes stock','warn'],['categories','Catégories','tag'],['sales','Ventes','cart','TRANSACTIONS'],['purchases','Achats','bag'],['expenses','Dépenses','wallet'],['customers','Clients','users','CONTACTS'],['suppliers','Fournisseurs','truck'],['reports','Rapports','chart','ANALYSE'],['settings','Réglages','cog']];
+$('#nv').innerHTML=PAGES.map(p=>(p[3]?`<small>${p[3]}</small>`:'')+`<a href="#${p[0]}" data-p="${p[0]}">${ic(p[2])}${p[1]}<span class="bdg hidden" data-b="${p[0]}"></span></a>`).join('');
 const openS=()=>{$('#sd').classList.add('open');$('#scr').classList.add('show')},closeS=()=>{$('#sd').classList.remove('open');$('#scr').classList.remove('show')};
 $('#bg').onclick=openS;$('#scr').onclick=closeS;window.onhashchange=go;
 $('#gs').addEventListener('keydown',e=>{if(e.key!=='Enter')return;const q=e.target.value.trim().toLowerCase();if(!q)return;
-  const hit=['products','customers','sales','suppliers'].find(k=>D[k].some(r=>JSON.stringify(r).toLowerCase().includes(q)));
+  const hit=['products','customers','sales','suppliers'].find(k=>D[k].some(r=>hay(r).includes(q)));
   if(!hit)return toast('Aucun résultat',1);location.hash=hit;setTimeout(()=>{const i=$('#q');if(i){i.value=q;i.dispatchEvent(new Event('input'))}},30)});
 function go(){if(!$('#app').classList.contains('show'))return;const h=(location.hash||'#dashboard').slice(1),k=PAGES.some(p=>p[0]===h)?h:'dashboard';
-  $$('#nv a').forEach(a=>a.classList.toggle('on',a.dataset.p===k));closeS();window.scrollTo(0,0);
-  ({dashboard,reports,settings}[k]||(()=>listPage(k)))(k)}
+  $$('#nv a').forEach(a=>{const on=a.dataset.p===k;a.classList.toggle('on',on);on?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current')});closeS();window.scrollTo(0,0);
+  try{({dashboard,reports,settings,alerts}[k]||(()=>listPage(k)))(k)}catch(e){console.error(e);$('#view').innerHTML='<div class="emp"><b>Erreur d\'affichage</b><br>Rechargez la page.</div>'}}
 
 /* ---------- module definitions ---------- */
-const td=()=>new Date().toISOString().slice(0,10);
+const td=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const party=[['name','Nom','text',1],['email','Email','text'],['phone','Téléphone','text'],['city','Ville','text'],['address','Adresse','text']];
 const M={
 products:{t:'Produits',sub:'Gérez votre catalogue et votre stock.',add:'Ajouter un produit',
- cols:[['Produit',p=>`<div class="cp"><div class="th">${p.image?`<img src="${esc(p.image)}" alt="" onerror="this.remove()">`:ic('box')}</div><div><b>${esc(p.name)}</b><small>${esc(p.brand||'')}</small></div></div>`],['SKU',p=>esc(p.sku||'—')],['Catégorie',p=>esc(nm('categories',p.category_id))],['Stock',stk],['Qté',p=>`<span class="num">${p.qty}</span>`],["Prix d'achat",p=>`<span class="num">${money(p.purchase_price)}</span>`],['Prix de vente',p=>`<b class="g num">${money(p.selling_price)}</b>`],['Statut',p=>p.active?tag('Actif','ok'):tag('Inactif','off')]],
+ cols:[['Produit',p=>`<div class="cp"><div class="th">${safeUrl(p.image)?`<img src="${esc(safeUrl(p.image))}" alt="" loading="lazy" onerror="this.remove()">`:ic('box')}</div><div><b>${esc(p.name)}</b><small>${esc(p.brand||'')}</small></div></div>`],['SKU',p=>esc(p.sku||'—')],['Catégorie',p=>esc(nm('categories',p.category_id))],['Stock',stk],['Qté',p=>`<span class="num">${p.qty}</span>`],["Prix d'achat",p=>`<span class="num">${money(p.purchase_price)}</span>`],['Prix de vente',p=>`<b class="g num">${money(p.selling_price)}</b>`],['Statut',p=>p.active?tag('Actif','ok'):tag('Inactif','off')]],
  fields:[['name','Nom du produit','text',1],['sku','SKU','text'],['brand','Marque','text'],['category_id','Catégorie','sel:categories'],['purchase_price',"Prix d'achat",'num',1],['selling_price','Prix de vente','num',1],['qty','Quantité en stock','int',1],['min_stock','Seuil de stock faible','int'],['image','Image (URL ou import)','img'],['active','Produit actif','chk']],
  def:{qty:0,min_stock:5,active:true,purchase_price:0,selling_price:0},imp:1,
  filt:[['c','Toutes les catégories',()=>D.categories.map(c=>[c.id,c.name]),(r,v)=>String(r.category_id)===v],['s','Tous les statuts de stock',()=>[['in','En stock'],['low','Stock faible'],['out','Rupture']],(r,v)=>v==='in'?r.qty>r.min_stock:v==='low'?r.qty>0&&r.qty<=r.min_stock:r.qty<=0]],
@@ -229,31 +269,61 @@ purchases:{t:'Achats',sub:'Réapprovisionnements fournisseurs (le stock augmente
 };
 
 /* ---------- generic list page ---------- */
-function statHtml(a){return `<div class="stats" style="grid-template-columns:repeat(${a.length},1fr)">${a.map(s=>`<div class="st"><div class="ic ${s[2]}">${ic(s[3])}</div><div><small>${esc(s[0])}</small><b class="num">${esc(s[1])}</b></div></div>`).join('')}</div>`}
-function listPage(k){const m=M[k];
-  $('#view').innerHTML=`<div class="head"><div><h2>${m.t}</h2><p>${m.sub}</p></div><div class="acts"><button class="btn dg hidden" id="bk"></button>${m.imp?'<button class="btn gh" id="im">Importer CSV</button><input type="file" id="imf" accept=".csv" hidden>':''}<button class="btn gh" id="ex">Exporter CSV</button><button class="btn" id="ad">+ ${m.add}</button></div></div>${m.stats?statHtml(m.stats()):''}<div class="bar"><input id="q" type="search" placeholder="Rechercher…">${(m.filt||[]).map((f,i)=>`<select data-f="${i}"><option value="">${f[1]}</option>${f[2]().map(o=>`<option value="${esc(o[0])}">${esc(o[1])}</option>`).join('')}</select>`).join('')}</div><div class="tw"><table><thead><tr><th style="width:36px"><input type="checkbox" id="ca" aria-label="Tout sélectionner"></th>${m.cols.map(c=>`<th>${c[0]}</th>`).join('')}<th></th></tr></thead><tbody id="tb"></tbody></table></div>`;
-  const fill=()=>{const q=$('#q').value.trim().toLowerCase(),L=D[k].filter(r=>(!q||JSON.stringify(r).toLowerCase().includes(q))&&(m.filt||[]).every((f,i)=>{const v=($$('.bar [data-f]')[i]||{}).value;return !v||f[3](r,v)}));
-    $('#tb').innerHTML=L.length?L.map(r=>`<tr class="${m.doc?'c':''}" data-id="${r.id}"><td><input type="checkbox" class="ck" aria-label="Sélection"></td>${m.cols.map(c=>`<td>${c[1](r)}</td>`).join('')}<td><div class="ra">${m.doc?`<button class="btn gh sm" data-v>Voir</button>`:`<button class="btn gh sm" data-e>Modifier</button>`}<button class="btn dg sm" data-d>Supprimer</button></div></td></tr>`).join(''):`<tr><td colspan="${m.cols.length+2}"><div class="emp"><b>Aucun résultat</b><br>Ajoutez un premier élément avec le bouton en haut à droite.</div></td></tr>`};
-  fill();$('#q').oninput=fill;$$('.bar select').forEach(s=>s.onchange=fill);$('#ad').onclick=()=>m.doc?doc(k):form(k);$('#ex').onclick=()=>csv(k);
+function statHtml(a){return `<div class="stats" style="--n:${a.length}">${a.map(s=>`<div class="st"><div class="ic ${s[2]}">${ic(s[3])}</div><div><small>${esc(s[0])}</small><b class="num">${esc(s[1])}</b></div></div>`).join('')}</div>`}
+const PG=50,SX=new WeakMap();
+const hay=r=>{let s=SX.get(r);if(s===undefined){s=Object.entries(r).filter(([k,v])=>v!=null&&typeof v!=='object'&&!['id','image','created_at'].includes(k)).map(e=>e[1]).join(' ').toLowerCase();SX.set(r,s)}return s};
+function listPage(k){const m=M[k];let pg=0,tmr;
+  $('#view').innerHTML=`<div class="head"><div><h2>${m.t}</h2><p>${m.sub}</p></div><div class="acts"><button class="btn dg hidden" id="bk"></button>${m.imp?'<button class="btn gh" id="im">Importer CSV</button><input type="file" id="imf" accept=".csv,text/csv" hidden>':''}<button class="btn gh" id="ex">Exporter CSV</button><button class="btn" id="ad">+ ${m.add}</button></div></div>${m.stats?statHtml(m.stats()):''}<div class="bar"><input id="q" type="search" placeholder="Rechercher…" aria-label="Rechercher">${(m.filt||[]).map((f,i)=>`<select data-f="${i}" aria-label="${f[1]}"><option value="">${f[1]}</option>${f[2]().map(o=>`<option value="${esc(o[0])}">${esc(o[1])}</option>`).join('')}</select>`).join('')}</div><div class="tw"><table><thead><tr><th style="width:36px"><input type="checkbox" id="ca" aria-label="Tout sélectionner"></th>${m.cols.map(c=>`<th>${c[0]}</th>`).join('')}<th></th></tr></thead><tbody id="tb"></tbody></table></div><div class="pgn" id="pgn"></div>`;
   const sel=()=>$$('.ck:checked').map(c=>+c.closest('tr').dataset.id),upd=()=>{const n=sel().length,b=$('#bk');b.classList.toggle('hidden',!n);b.textContent='Supprimer ('+n+')'};
+  const rows=()=>{const q=$('#q').value.trim().toLowerCase(),fs=$$('.bar [data-f]');return D[k].filter(r=>(!q||hay(r).includes(q))&&(m.filt||[]).every((f,i)=>{const v=(fs[i]||{}).value;return !v||f[3](r,v)}))};
+  const fill=()=>{const L=rows(),n=Math.max(1,Math.ceil(L.length/PG));if(pg>=n)pg=n-1;const P2=L.slice(pg*PG,pg*PG+PG);
+    $('#tb').innerHTML=P2.length?P2.map(r=>`<tr class="${m.doc?'c':''}" data-id="${r.id}"><td><input type="checkbox" class="ck" aria-label="Sélection"></td>${m.cols.map(c=>`<td>${c[1](r)}</td>`).join('')}<td><div class="ra">${m.doc?`<button class="btn gh sm" data-v>Voir</button>`:`<button class="btn gh sm" data-e>Modifier</button>`}<button class="btn dg sm" data-d>Supprimer</button></div></td></tr>`).join(''):`<tr><td colspan="${m.cols.length+2}"><div class="emp"><b>Aucun résultat</b><br>Ajoutez un premier élément avec le bouton en haut à droite.</div></td></tr>`;
+    $('#pgn').innerHTML=L.length>PG?`<span>${pg*PG+1}–${Math.min(L.length,pg*PG+PG)} sur ${L.length}</span><button class="btn gh sm" data-pg="-1" ${pg?'':'disabled'}>Précédent</button><button class="btn gh sm" data-pg="1" ${pg<n-1?'':'disabled'}>Suivant</button>`:`<span>${L.length} élément(s)</span>`;
+    $('#ca').checked=false;upd()};
+  fill();$('#q').oninput=()=>{clearTimeout(tmr);tmr=setTimeout(()=>{pg=0;fill()},150)};
+  $$('.bar select').forEach(s=>s.onchange=()=>{pg=0;fill()});
+  $('#pgn').onclick=e=>{const b=e.target.closest('[data-pg]');if(!b)return;pg+=+b.dataset.pg;fill();window.scrollTo(0,0)};
+  $('#ad').onclick=()=>m.doc?doc(k):form(k);$('#ex').onclick=()=>csv(k);
   $('#ca').onchange=e=>{$$('.ck').forEach(c=>c.checked=e.target.checked);upd()};$('#tb').addEventListener('change',e=>{if(e.target.classList.contains('ck'))upd()});
-  $('#bk').onclick=async()=>{const ids=sel();if(!ids.length||!confirm('Supprimer '+ids.length+' élément(s) ?'))return;const {error}=await sb.from(k).delete().in('id',ids);if(error)return toast(error.message,1);toast('Supprimé');load()};
+  $('#bk').onclick=async()=>{const ids=sel();if(!ids.length||!confirm('Supprimer '+ids.length+' élément(s) ?'))return;const {error}=await sb.from(k).delete().in('id',ids);if(error)return toast(errMsg(error),1);toast('Supprimé');load()};
   if(m.imp){$('#im').onclick=()=>$('#imf').click();$('#imf').onchange=e=>imp(e.target.files[0])}
   $('#tb').onclick=e=>{const tr=e.target.closest('tr[data-id]');if(!tr||e.target.classList.contains('ck'))return;const id=+tr.dataset.id;
     if(e.target.closest('[data-d]'))return del(k,id);if(e.target.closest('[data-e]'))return form(k,id);if(m.doc)view(k,id)}}
 const pbar=(l,v,t,c,x)=>`<div class="rw"><div><span>${l}</span><b>${x??v}</b></div><div class="pb"><i style="width:${Math.min(100,t?v/t*100:0)}%;background:${c}"></i></div></div>`;
 const av=n=>`<div class="cp"><div class="th" style="background:var(--ac);color:#fff;border-radius:50%;font-weight:800">${esc((n||'?')[0].toUpperCase())}</div><b>${esc(n)}</b></div>`;
-async function imp(f){if(!f)return;const t=(await f.text()).replace(/^\ufeff/,'').split(/\r?\n/).filter(x=>x.trim());if(t.length<2)return toast('Fichier vide',1);const sep=t[0].includes(';')?';':',';
-  const sp=l=>l.split(sep).map(x=>x.trim().replace(/^"|"$/g,'')),h=sp(t[0]).map(x=>x.toLowerCase());
-  const rows=t.slice(1).map(l=>{const c=sp(l),o={};h.forEach((x,i)=>o[x]=c[i]);const cat=D.categories.find(x=>x.name.toLowerCase()===(o.category||o.categorie||'').toLowerCase());
-    return {name:o.name||o.nom,sku:o.sku||null,brand:o.brand||o.marque||null,category_id:cat?cat.id:null,purchase_price:+(o.purchase_price||0),selling_price:+(o.selling_price||0),qty:parseInt(o.qty||0)||0}}).filter(r=>r.name);
-  if(!rows.length)return toast('Colonnes attendues : name, sku, brand, category, purchase_price, selling_price, qty',1);
-  const {error}=await sb.from('products').insert(rows);if(error)return toast(error.message,1);toast(rows.length+' produits importés');load()}
+function parseCsv(t){const l0=t.split(/\r?\n/,1)[0],sep=(l0.match(/;/g)||[]).length>(l0.match(/,/g)||[]).length?';':',',R=[];let r=[],c='',q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(q){if(ch==='"'&&t[i+1]==='"'){c+='"';i++}else if(ch==='"')q=false;else c+=ch}
+    else if(ch==='"')q=true;else if(ch===sep){r.push(c);c=''}
+    else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;r.push(c);c='';if(r.some(x=>x.trim()))R.push(r);r=[]}
+    else c+=ch}
+  r.push(c);if(r.some(x=>x.trim()))R.push(r);return R}
+async function imp(f){if(!f)return;$('#imf').value='';
+  if(f.size>2e6)return toast('Fichier trop volumineux (2 Mo max)',1);
+  const R=parseCsv((await f.text()).replace(/^﻿/,''));if(R.length<2)return toast('Fichier vide',1);
+  if(R.length>5001)return toast('5 000 lignes maximum par import',1);
+  const h=R[0].map(x=>x.trim().toLowerCase()),ix=(...n)=>{for(const x of n){const i=h.indexOf(x);if(i>=0)return i}return -1},
+    I={name:ix('name','nom'),sku:ix('sku'),brand:ix('brand','marque'),cat:ix('category','categorie','catégorie'),pp:ix('purchase_price','prix_achat'),sp:ix('selling_price','prix_vente'),qty:ix('qty','quantite','quantité','stock'),min:ix('min_stock','seuil')};
+  if(I.name<0)return toast('Colonne obligatoire manquante : name (ou nom)',1);
+  const g=(r,i)=>i<0?'':(r[i]??'').trim(),skus=new Set(D.products.map(p=>(p.sku||'').toLowerCase()).filter(Boolean)),ok=[],bad=[];let nocat=0;
+  R.slice(1).forEach((r,n)=>{const e=[],name=g(r,I.name),sku=g(r,I.sku),pp=num(g(r,I.pp)),sp=num(g(r,I.sp)),qty=num(g(r,I.qty)),mn=I.min<0||g(r,I.min)===''?5:num(g(r,I.min));
+    if(!name)e.push('nom manquant');else if(name.length>200)e.push('nom trop long');
+    if(isNaN(pp)||pp<0)e.push("prix d'achat invalide");if(isNaN(sp)||sp<0)e.push('prix de vente invalide');
+    if(isNaN(qty)||qty<0||!Number.isInteger(qty))e.push('quantité invalide');if(isNaN(mn)||mn<0||!Number.isInteger(mn))e.push('seuil invalide');
+    if(sku){const s=sku.toLowerCase();if(skus.has(s))e.push('SKU déjà utilisé');else skus.add(s)}
+    if(e.length)return bad.push({line:n+2,e:e.join(', ')});
+    const cn=g(r,I.cat).toLowerCase(),cat=cn&&D.categories.find(x=>x.name.toLowerCase()===cn);if(cn&&!cat)nocat++;
+    ok.push({name,sku:sku||null,brand:g(r,I.brand)||null,category_id:cat?cat.id:null,purchase_price:pp,selling_price:sp,qty,min_stock:mn,active:true})});
+  modal(`<h3>Aperçu de l'import</h3><div class="ov2"><div><b>${ok.length}</b><span>Produits valides</span></div><div><b>${bad.length}</b><span>Lignes en erreur (ignorées)</span></div></div>${bad.length?`<ul class="errs">${bad.slice(0,8).map(b=>`<li>Ligne ${b.line} : ${esc(b.e)}</li>`).join('')}${bad.length>8?`<li>… et ${bad.length-8} autre(s)</li>`:''}</ul>`:''}${nocat?`<p class="hint">${nocat} ligne(s) avec une catégorie inconnue seront importées sans catégorie.</p>`:''}<p class="hint">Colonnes reconnues : name, sku, brand, category, purchase_price, selling_price, qty, min_stock.</p><div class="ma"><button class="btn gh" data-x>Annuler</button><button class="btn" id="go" ${ok.length?'':'disabled'}>Importer ${ok.length} produit(s)</button></div>`);
+  $('#go').onclick=async()=>{const b=$('#go');b.disabled=true;b.textContent='Import…';
+    for(let i=0;i<ok.length;i+=200){const {error}=await sb.from('products').insert(ok.slice(i,i+200));if(error){b.disabled=false;b.textContent='Réessayer';return toast(errMsg(error)+(i?` (${i} produit(s) déjà importés)`:''),1)}}
+    closeM();toast(ok.length+' produits importés');load()}}
 async function del(k,id){if(!confirm('Supprimer définitivement cet élément ?'))return;
-  const {error}=await sb.from(k).delete().eq('id',id);if(error)return toast(error.message,1);toast('Supprimé');load()}
-function csv(k){const L=D[k];if(!L.length)return toast('Rien à exporter',1);const ks=Object.keys(L[0]).filter(x=>typeof L[0][x]!=='object'||L[0][x]===null);
-  const t=[ks].concat(L.map(r=>ks.map(x=>r[x]))).map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv;charset=utf-8'}));a.download=k+'-'+td()+'.csv';a.click()}
+  const {error}=await sb.from(k).delete().eq('id',id);if(error)return toast(errMsg(error),1);toast('Supprimé');load()}
+const cell=v=>{let s=String(v??'');if(/^[=+\-@\t\r]/.test(s)&&!/^-?\d+([.,]\d+)?$/.test(s))s="'"+s;return`"${s.replace(/"/g,'""')}"`};
+function csv(k,L=D[k]){if(!L.length)return toast('Rien à exporter',1);const ks=Object.keys(L[0]).filter(x=>typeof L[0][x]!=='object'||L[0][x]===null);
+  const t=[ks].concat(L.map(r=>ks.map(x=>r[x]))).map(r=>r.map(cell).join(',')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+t],{type:'text/csv;charset=utf-8'}));a.download=k+'-'+td()+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
 
 /* ---------- generic form ---------- */
 function fieldHtml(f,r){const [n,l,t,rq]=f,v=r[n]??'';let h;
@@ -261,17 +331,21 @@ function fieldHtml(f,r){const [n,l,t,rq]=f,v=r[n]??'';let h;
   if(t.startsWith('sel'))h=`<select id="f_${n}"><option value="">—</option>${D[t.slice(4)].map(o=>`<option value="${o.id}" ${o.id===v?'selected':''}>${esc(o.name)}</option>`).join('')}</select>`;
   else if(t==='area')h=`<textarea id="f_${n}" rows="3">${esc(v)}</textarea>`;
   else if(t==='img')h=`<div style="display:flex;gap:8px"><input id="f_${n}" value="${esc(v)}" placeholder="https://…"><label class="btn gh sm" style="cursor:pointer">Importer<input type="file" id="up" accept="image/*" hidden></label></div>`;
-  else h=`<input id="f_${n}" type="${t==='date'?'date':t==='text'?'text':'number'}" ${t==='num'?'step="0.01" min="0"':t==='int'?'step="1" min="0"':''} value="${esc(t==='date'&&!v?td():v)}" ${rq?'required':''}>`;
-  return `<div class="fd"><label>${l}${rq?' *':''}</label>${h}</div>`}
+  else h=`<input id="f_${n}" type="${t==='date'?'date':t==='text'?'text':'number'}" ${t==='text'?'maxlength="200"':''} ${t==='num'?'step="0.01" min="0"':t==='int'?'step="1" min="0"':''} value="${esc(t==='date'&&!v?td():v)}" ${rq?'required':''}>`;
+  return `<div class="fd"><label for="f_${n}">${l}${rq?' *':''}</label>${h}</div>`}
 function form(k,id){const m=M[k],r=id?D[k].find(x=>x.id===id):{...m.def};
   modal(`<h3>${id?'Modifier':'Ajouter'} — ${m.t.toLowerCase()}</h3><form id="f"><div class="fr">${m.fields.map(f=>fieldHtml(f,r)).join('')}</div><div class="ma"><button type="button" class="btn gh" data-x>Annuler</button><button class="btn">Enregistrer</button></div></form>`);
-  const up=$('#up');if(up)up.onchange=async()=>{const f=up.files[0];if(!f)return;if(f.size>5e6)return toast('Image trop lourde (5 Mo max)',1);
+  const up=$('#up');if(up)up.onchange=async()=>{const f=up.files[0];if(!f)return;if(!f.type.startsWith('image/'))return toast('Fichier image requis',1);if(f.size>5e6)return toast('Image trop lourde (5 Mo max)',1);
     const p=Date.now()+'-'+f.name.replace(/[^\w.-]/g,'_');toast('Import…');const {error}=await sb.storage.from(C.supabase.bucket).upload(p,f);
-    if(error)return toast(error.message,1);$('#f_image').value=sb.storage.from(C.supabase.bucket).getPublicUrl(p).data.publicUrl;toast('Image importée')};
-  $('#f').onsubmit=async e=>{e.preventDefault();const v={};
-    m.fields.forEach(([n,l,t])=>{const el=$('#f_'+n);v[n]=t==='chk'?el.checked:el.value===''?null:(t==='num'||t==='int'||t.startsWith('sel'))?Number(el.value):el.value.trim()});
-    const {error}=id?await sb.from(k).update(v).eq('id',id):await sb.from(k).insert(v);
-    if(error)return toast(error.code==='23505'?'Ce SKU existe déjà':error.message,1);closeM();toast('Enregistré');load()}}
+    if(error)return toast(errMsg(error),1);$('#f_image').value=sb.storage.from(C.supabase.bucket).getPublicUrl(p).data.publicUrl;toast('Image importée')};
+  $('#f').onsubmit=async e=>{e.preventDefault();const b=$('#f button:not([type=button])'),v={};let bad=null;
+    m.fields.forEach(([n,l,t])=>{const el=$('#f_'+n);let x=t==='chk'?el.checked:el.value===''?null:(t==='num'||t==='int'||t.startsWith('sel'))?Number(el.value):el.value.trim();
+      if((t==='num'||t==='int')&&x!==null&&(!Number.isFinite(x)||x<0||(t==='int'&&!Number.isInteger(x))))bad=bad||l;
+      if(t==='img'&&x){x=safeUrl(x);if(!x)bad=bad||l}
+      v[n]=x});
+    if(bad)return toast('Valeur invalide : '+bad,1);
+    b.disabled=true;const {error}=id?await sb.from(k).update(v).eq('id',id):await sb.from(k).insert(v);b.disabled=false;
+    if(error)return toast(errMsg(error),1);closeM();toast('Enregistré');load()}}
 
 /* ---------- sales / purchases document ---------- */
 let L=[];const pr=id=>D.products.find(p=>p.id===id);
@@ -282,84 +356,106 @@ function doc(k){const s=k==='sales';L=[{q:1}];
   <div class="tot"><span>Total</span><b id="tt"></b></div>${s?`<div class="fd"><label>Montant payé (vide = payé en totalité)</label><input type="number" id="dpd" step="0.01" min="0"></div>`:''}
   <div class="ma"><button type="button" class="btn gh" data-x>Annuler</button><button class="btn" id="sv">Enregistrer</button></div>`);
   const tot=()=>$('#tt').textContent=money(sum(L,l=>(l.p?l.q*l.u:0)));
-  const draw=()=>{$('#ls').innerHTML=L.map((l,i)=>`<div class="ln" data-i="${i}"><select data-f="p"><option value="">Produit…</option>${D.products.filter(p=>p.active).map(p=>`<option value="${p.id}" ${p.id===l.p?'selected':''}>${esc(p.name)}${s?` (${p.qty})`:''}</option>`).join('')}</select><input type="number" data-f="q" min="1" value="${l.q||1}" aria-label="Quantité"><input type="number" data-f="u" step="0.01" min="0" value="${l.u??''}" aria-label="Prix"><button type="button" class="btn dg sm" data-r>×</button></div>`).join('');tot()};
+  const draw=()=>{$('#ls').innerHTML=L.map((l,i)=>`<div class="ln" data-i="${i}"><select data-f="p" aria-label="Produit"><option value="">Produit…</option>${D.products.filter(p=>p.active).map(p=>`<option value="${p.id}" ${p.id===l.p?'selected':''}>${esc(p.name)}${s?` (${p.qty})`:''}</option>`).join('')}</select><input type="number" data-f="q" min="1" value="${l.q||1}" aria-label="Quantité"><input type="number" data-f="u" step="0.01" min="0" value="${l.u??''}" aria-label="Prix"><button type="button" class="btn dg sm" data-r>×</button></div>`).join('');tot()};
   draw();$('#al').onclick=()=>{L.push({q:1});draw()};
   $('#ls').addEventListener('input',e=>{const r=e.target.closest('.ln'),f=e.target.dataset.f;if(!r||!f)return;const l=L[+r.dataset.i];l[f]=Number(e.target.value);tot()});
   $('#ls').addEventListener('change',e=>{if(e.target.dataset.f!=='p')return;const l=L[+e.target.closest('.ln').dataset.i],p=pr(Number(e.target.value));l.p=p?p.id:null;l.u=p?(s?p.selling_price:p.purchase_price):'';draw()});
   $('#ls').addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!b)return;L.splice(+b.closest('.ln').dataset.i,1);if(!L.length)L.push({q:1});draw()});
-  $('#sv').onclick=async()=>{const ls=L.filter(l=>l.p&&l.q>0);if(!ls.length)return toast('Ajoutez au moins un article',1);
-    if(s)for(const l of ls){const p=pr(l.p),need=sum(ls.filter(x=>x.p===l.p),x=>x.q);if(p.qty<need)return toast(`Stock insuffisant : ${p.name} (${p.qty} dispo)`,1)}
-    const total=sum(ls,l=>l.q*l.u),b=$('#sv');b.disabled=true;
+  $('#sv').onclick=async()=>{const b=$('#sv'),ls=L.filter(l=>l.p&&l.q>0);if(!ls.length)return toast('Ajoutez au moins un article',1);
+    if(ls.some(l=>!Number.isInteger(l.q)||!Number.isFinite(l.u)||l.u<0))return toast('Quantité (nombre entier) ou prix invalide',1);
+    if(!$('#dd').value)return toast('La date est obligatoire',1);
+    b.disabled=true;
+    if(s){/* on relit le stock réel juste avant d'enregistrer (la liste affichée peut être périmée) */
+      const ids=[...new Set(ls.map(l=>l.p))],{data:fr,error:fe}=await sb.from('products').select('id,name,qty').in('id',ids);
+      if(fe){b.disabled=false;return toast(errMsg(fe),1)}
+      for(const p of fr){const need=sum(ls.filter(x=>x.p===p.id),x=>x.q);if(p.qty<need){b.disabled=false;return toast(`Stock insuffisant : ${p.name} (${p.qty} dispo)`,1)}}}
+    const total=Math.round(sum(ls,l=>l.q*l.u)*100)/100,pd=$('#dpd')?$('#dpd').value:'';
+    if(s&&pd!==''&&(!(Number(pd)>=0)||Number(pd)>total)){b.disabled=false;return toast('Montant payé invalide (de 0 à '+money(total)+')',1)}
     const h=s?{customer_id:+$('#dp').value||null,date:$('#dd').value,method:$('#dm').value,total,paid:$('#dpd').value===''?total:Number($('#dpd').value)}:{supplier_id:+$('#dp').value||null,date:$('#dd').value,total};
-    const {data,error}=await sb.from(k).insert(h).select().single();if(error){b.disabled=false;return toast(error.message,1)}
+    const {data,error}=await sb.from(k).insert(h).select().single();if(error){b.disabled=false;return toast(errMsg(error),1)}
     const items=ls.map(l=>{const p=pr(l.p);return s?{sale_id:data.id,product_id:p.id,name:p.name,quantity:l.q,price:l.u,cost:p.purchase_price}:{purchase_id:data.id,product_id:p.id,name:p.name,quantity:l.q,cost:l.u}});
     const e2=(await sb.from(s?'sale_items':'purchase_items').insert(items)).error;
-    if(e2){await sb.from(k).delete().eq('id',data.id);b.disabled=false;return toast(e2.message,1)}
-    closeM();toast(s?'Vente enregistrée':'Achat enregistré');load()}}
+    if(e2){await sb.from(k).delete().eq('id',data.id);b.disabled=false;return toast(errMsg(e2),1)}
+    closeM();toast(s?'Vente enregistrée':'Achat enregistré');await load();if(s)view('sales',data.id)}}
 function view(k,id){const s=k==='sales',r=D[k].find(x=>x.id===id),its=(s?r.sale_items:r.purchase_items)||[];
   modal(`<h3>${s?'Facture '+esc(r.invoice_no):'Achat '+esc(r.ref)}</h3><div class="dl"><div><small>${s?'Client':'Fournisseur'}</small><b>${esc(s?(r.customer_id?nm('customers',r.customer_id):'Client comptoir'):nm('suppliers',r.supplier_id))}</b></div><div><small>Date</small><b>${fd(r.date)}</b></div>${s?`<div><small>Paiement</small><b>${esc(r.method)}</b></div><div><small>Statut</small>${pay(r)}</div>`:''}</div>
   <div class="it">${its.map(i=>`<div><span>${esc(i.name)} × ${i.quantity}</span><span class="num">${money(i.quantity*(s?i.price:i.cost))}</span></div>`).join('')}<div><span>Total</span><span class="num">${money(r.total)}</span></div></div>
   ${s&&r.paid<r.total?`<p style="margin-bottom:6px">Reste à encaisser : <b>${money(r.total-r.paid)}</b></p>`:''}
   <div class="ma"><button class="btn gh" data-x>Fermer</button>${s&&r.paid<r.total?'<button class="btn gh" id="mp">Marquer payée</button>':''}${s?'<button class="btn" id="pt">Imprimer la facture</button>':''}</div>`);
-  const mp=$('#mp');if(mp)mp.onclick=async()=>{const {error}=await sb.from('sales').update({paid:r.total}).eq('id',id);if(error)return toast(error.message,1);closeM();toast('Facture payée');load()};
+  const mp=$('#mp');if(mp)mp.onclick=async()=>{const {error}=await sb.from('sales').update({paid:r.total}).eq('id',id);if(error)return toast(errMsg(error),1);closeM();toast('Facture payée');load()};
   const pt=$('#pt');if(pt)pt.onclick=()=>{const w=open('','_blank');if(!w)return toast('Autorisez les pop-ups',1);
-    w.document.write(`<html><head><title>${esc(r.invoice_no)}</title></head><body style="font-family:Arial,sans-serif;padding:40px;max-width:760px;margin:auto">${B.logo?`<img src="${esc(B.logo)}" style="height:56px"><br>`:''}<h2>${esc(S.store_name||B.name)}</h2><p style="color:#555">${esc(S.address||'')}<br>${esc(S.phone||'')} ${esc(S.email||'')}</p><hr><h3>Facture ${esc(r.invoice_no)}</h3><p>Date : ${fd(r.date)}<br>Client : ${esc(r.customer_id?nm('customers',r.customer_id):'Client comptoir')}</p><table style="width:100%;border-collapse:collapse"><tr style="background:#eee"><th align=left style="padding:8px">Article</th><th>Qté</th><th align=right>PU</th><th align=right>Total</th></tr>${its.map(i=>`<tr><td style="padding:8px;border-bottom:1px solid #ddd">${esc(i.name)}</td><td align=center>${i.quantity}</td><td align=right>${money(i.price)}</td><td align=right>${money(i.quantity*i.price)}</td></tr>`).join('')}</table><h3 style="text-align:right">Total : ${money(r.total)}</h3><p style="text-align:right">Payé : ${money(r.paid)} (${esc(r.method)})</p></body></html>`);w.document.close();w.focus();w.print()}}
+    w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${esc(r.invoice_no)}</title><style>@page{size:A4;margin:14mm}</style></head><body style="font-family:Arial,sans-serif;padding:24px;max-width:760px;margin:auto">${B.logo?`<img src="${esc(B.logo)}" style="height:56px"><br>`:''}<h2>${esc(S.store_name||B.name)}</h2><p style="color:#555">${esc(S.address||'')}<br>${esc(S.phone||'')} ${esc(S.email||'')}</p><hr><h3>Facture ${esc(r.invoice_no)}</h3><p>Date : ${fd(r.date)}<br>Client : ${esc(r.customer_id?nm('customers',r.customer_id):'Client comptoir')}</p><table style="width:100%;border-collapse:collapse"><tr style="background:#eee"><th align=left style="padding:8px">Article</th><th>Qté</th><th align=right>PU</th><th align=right>Total</th></tr>${its.map(i=>`<tr><td style="padding:8px;border-bottom:1px solid #ddd">${esc(i.name)}</td><td align=center>${i.quantity}</td><td align=right>${money(i.price)}</td><td align=right>${money(i.quantity*i.price)}</td></tr>`).join('')}</table><h3 style="text-align:right">Total : ${money(r.total)}</h3><p style="text-align:right">Payé : ${money(r.paid)} (${esc(r.method)})</p>${r.paid<r.total?`<p style="text-align:right"><b>Reste à payer : ${money(r.total-r.paid)}</b></p>`:''}</body></html>`);w.document.close();w.focus();setTimeout(()=>w.print(),300)}}
 
 /* ---------- dashboard ---------- */
 const COL=['#14a35f','#2f5bea','#f59e0b','#8b5cf6','#94a3b8'];
+let PER='all';try{PER=localStorage.getItem('per')||'all'}catch(e){}
+const inPer=d=>{if(PER==='all')return true;const x=String(d||'').slice(0,10),t=new Date(),pad=n=>String(n).padStart(2,'0'),iso=z=>z.getFullYear()+'-'+pad(z.getMonth()+1)+'-'+pad(z.getDate());
+  if(PER==='today')return x===td();if(PER==='month')return x.slice(0,7)===td().slice(0,7);
+  const f=new Date(t.getFullYear(),t.getMonth(),t.getDate()-(PER==='7d'?6:29));return x>=iso(f)&&x<=td()};
 function dashboard(){
-  const P=D.products,SA=D.sales,cogs=sum(SA.flatMap(s=>s.sale_items||[]),i=>i.cost*i.quantity),rev=sum(SA,s=>s.total),exp=sum(D.expenses,e=>e.amount),cost=cogs+exp;
+  const P=D.products.filter(p=>p.active),SA=D.sales.filter(s=>inPer(s.date)),cogs=sum(SA.flatMap(s=>s.sale_items||[]),i=>i.cost*i.quantity),rev=sum(SA,s=>s.total),exp=sum(D.expenses.filter(e=>inPer(e.date)),e=>e.amount),cost=cogs+exp;
   const low=P.filter(p=>p.qty>0&&p.qty<=p.min_stock).length,out=P.filter(p=>p.qty<=0).length;
-  const yr=new Date().getFullYear(),mo=Array(12).fill(0);SA.forEach(s=>{const d=new Date(s.date);if(d.getFullYear()===yr)mo[d.getMonth()]+=Number(s.total)});
+  const yr=new Date().getFullYear(),mo=Array(12).fill(0);D.sales.forEach(s=>{const d=ld(s.date);if(d.getFullYear()===yr)mo[d.getMonth()]+=Number(s.total)});
   const mx=Math.max(...mo,1),pts=mo.map((v,i)=>[40+i*(540/11),170-(v/mx)*150]),ln=pts.map(p=>p.join(',')).join(' ');
   const ml=Array.from({length:12},(_,i)=>new Date(2000,i,1).toLocaleDateString(C.locale,{month:'short'}));
   const cc={};P.forEach(p=>{const n=p.category_id?nm('categories',p.category_id):'Sans catégorie';cc[n]=(cc[n]||0)+1});
   let ct=Object.entries(cc).sort((a,b)=>b[1]-a[1]);if(ct.length>5){const r=sum(ct.slice(4),x=>x[1]);ct=ct.slice(0,4).concat([['Autres',r]])}
   let acc=0;const grad=ct.length?ct.map((c,i)=>{const a=acc/P.length*100;acc+=c[1];return `${COL[i]} ${a}% ${acc/P.length*100}%`}).join(','):'var(--mu) 0 100%';
-  const ev=[...SA.slice(0,5).map(s=>({d:s.created_at,i:'cart',c:'ok',t:'Facture '+s.invoice_no,s:money(s.total)})),...D.purchases.slice(0,5).map(s=>({d:s.created_at,i:'bag',c:'inf',t:'Achat '+s.ref,s:money(s.total)}))].sort((a,b)=>new Date(b.d)-new Date(a.d)).slice(0,4);
+  const ev=[...D.sales.slice(0,5).map(s=>({d:s.created_at,i:'cart',c:'ok',t:'Facture '+s.invoice_no,s:money(s.total)})),...D.purchases.slice(0,5).map(s=>({d:s.created_at,i:'bag',c:'inf',t:'Achat '+s.ref,s:money(s.total)}))].sort((a,b)=>new Date(b.d)-new Date(a.d)).slice(0,4);
   P.filter(p=>p.qty<=p.min_stock).slice(0,2).forEach(p=>ev.push({i:'warn',c:'bd',t:'Alerte stock : '+p.name,s:p.qty+' restant(s)'}));
   $('#view').innerHTML=`<div class="ban"><div><h2>Bienvenue, ${esc(window.ME||'')} 👋</h2><p>${low+out?`Vous avez ${low+out} article(s) à réapprovisionner.`:'Votre stock est en bonne santé.'}</p></div><div class="mi"><div><b>${P.length}</b><span>Produits</span></div><div><b>${P.length-low-out}</b><span>En stock</span></div><div><b>${low}</b><span>Stock faible</span></div><div><b>${out}</b><span>Rupture</span></div></div></div>
+  <div class="bar" style="justify-content:flex-end;align-items:center"><label for="per" style="color:var(--i3);font-size:12.5px;font-weight:700">Période des indicateurs</label><select id="per" style="flex:0 1 200px"><option value="all">Depuis le début</option><option value="today">Aujourd'hui</option><option value="7d">7 derniers jours</option><option value="30d">30 derniers jours</option><option value="month">Ce mois-ci</option></select></div>
   ${statHtml([['Total ventes',money(rev),'ok','dollar'],['Encaissé',money(sum(SA,s=>s.paid)),'inf','trend'],['Coûts',money(cost),'bd','wallet'],['Bénéfice',money(rev-cost),'wn','chart']])}
   <div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))">
   <div class="card"><h3>Aperçu du stock</h3><div class="ov2"><div><b>${sum(P,p=>p.qty)}</b><span>Qté en stock</span></div><div><b>${money(sum(P,p=>p.qty*p.purchase_price))}</b><span>Valeur du stock</span></div></div></div>
   <div class="card"><h3>Contacts</h3><div class="ov2"><div><b>${D.customers.length}</b><span>Clients</span></div><div><b>${D.suppliers.length}</b><span>Fournisseurs</span></div></div></div>
   <div class="card"><h3>État du stock</h3>${pbar("Stock faible",low,P.length,"var(--bd)")}${pbar("Groupes d'articles",D.categories.length,Math.max(D.categories.length,1),"var(--inf)")}${pbar("Nombre d'articles",P.length,Math.max(P.length,1),"var(--ok)")}</div>
-  <div class="card"><h3>Achats</h3>${pbar("Nombre d'achats",D.purchases.length,Math.max(D.purchases.length,1),"var(--ac)")}${pbar("Coût des achats",sum(D.purchases,p=>p.total),Math.max(sum(D.purchases,p=>p.total),rev,1),"var(--wn)",money(sum(D.purchases,p=>p.total)))}${pbar("Impayés clients",sum(SA,s=>Math.max(0,s.total-s.paid)),Math.max(rev,1),"var(--bd)",money(sum(SA,s=>Math.max(0,s.total-s.paid))))}</div></div>
+  <div class="card"><h3>Achats</h3>${pbar("Nombre d'achats",D.purchases.length,Math.max(D.purchases.length,1),"var(--ac)")}${pbar("Coût des achats",sum(D.purchases,p=>p.total),Math.max(sum(D.purchases,p=>p.total),rev,1),"var(--wn)",money(sum(D.purchases,p=>p.total)))}${pbar("Impayés clients",sum(D.sales,s=>Math.max(0,s.total-s.paid)),Math.max(rev,1),"var(--bd)",money(sum(D.sales,s=>Math.max(0,s.total-s.paid))))}</div></div>
   <div class="g2"><div class="card"><h3>Ventes ${yr}<small>${money(sum(mo,x=>x))}</small></h3><svg class="chs" viewBox="0 0 600 200"><defs><linearGradient id="gd" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--ac)" stop-opacity=".25"/><stop offset="1" stop-color="var(--ac)" stop-opacity="0"/></linearGradient></defs>${[0,1,2,3].map(i=>`<line x1="40" x2="580" y1="${20+i*50}" y2="${20+i*50}" stroke="var(--ln)"/>`).join('')}<polygon points="40,170 ${ln} 580,170" fill="url(#gd)"/><polyline points="${ln}" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linejoin="round"/>${pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="var(--sf)" stroke="var(--ac)" stroke-width="2"><title>${ml[i]} : ${money(mo[i])}</title></circle><text x="${p[0]}" y="192" font-size="10" fill="var(--i3)" text-anchor="middle">${ml[i]}</text>`).join('')}</svg></div>
   <div class="card"><h3>Top catégories</h3><div class="donut"><div class="dn" style="background:conic-gradient(${grad})"><div><span><b>${P.length}</b>Produits</span></div></div><ul class="lg">${ct.map((c,i)=>`<li><i style="background:${COL[i]}"></i>${esc(c[0])}<em>${Math.round(c[1]/P.length*100)}%</em></li>`).join('')||'<li style="color:var(--i3)">Aucun produit</li>'}</ul></div></div></div>
   <div class="g2"><div class="card" style="padding:0"><h3 style="padding:18px 20px 0">Produits récents<small><a href="#products" style="color:var(--ac);text-decoration:none;font-weight:700">Voir tout</a></small></h3><div class="tw" style="border:0"><table><thead><tr><th>Produit</th><th>SKU</th><th>Stock</th><th>Qté</th><th>Prix de vente</th></tr></thead><tbody>${P.slice(0,5).map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.sku||'—')}</td><td>${stk(p)}</td><td>${p.qty}</td><td class="g num"><b>${money(p.selling_price)}</b></td></tr>`).join('')||'<tr><td colspan="5"><div class="emp">Aucun produit</div></td></tr>'}</tbody></table></div></div>
-  <div class="card"><h3>Activité récente</h3><ul class="act">${ev.map(e=>`<li><div class="dt tag ${e.c==='bd'?'bad':e.c}" style="padding:0">${ic(e.i)}</div><div><b>${esc(e.t)}</b><small>${esc(e.s)}</small></div></li>`).join('')||'<li style="color:var(--i3)">Aucune activité pour le moment.</li>'}</ul></div></div>`}
+  <div class="card"><h3>Activité récente</h3><ul class="act">${ev.map(e=>`<li><div class="dt tag ${e.c==='bd'?'bad':e.c}" style="padding:0">${ic(e.i)}</div><div><b>${esc(e.t)}</b><small>${esc(e.s)}</small></div></li>`).join('')||'<li style="color:var(--i3)">Aucune activité pour le moment.</li>'}</ul></div></div>`;
+  $('#per').value=PER;$('#per').onchange=e=>{PER=e.target.value;try{localStorage.setItem('per',PER)}catch(x){}dashboard()}}
 
 /* ---------- reports ---------- */
 function reports(){
-  const rows=Array.from({length:12},(_,i)=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);const key=d.toISOString().slice(0,7),inM=x=>(x.date||'').slice(0,7)===key;
+  const rows=Array.from({length:12},(_,i)=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),inM=x=>(x.date||'').slice(0,7)===key;
     const sa=D.sales.filter(inM),v=sum(sa,s=>s.total),c=sum(sa.flatMap(s=>s.sale_items||[]),i=>i.cost*i.quantity),a=sum(D.purchases.filter(inM),p=>p.total),e=sum(D.expenses.filter(inM),x=>x.amount);
     return {l:d.toLocaleDateString(C.locale,{month:'long',year:'numeric'}),v,a,e,b:v-c-e}});
-  const val=sum(D.products,p=>p.qty*p.purchase_price);
+  const val=sum(D.products.filter(p=>p.active),p=>p.qty*p.purchase_price);
   $('#view').innerHTML=`<div class="head"><div><h2>Rapports</h2><p>Performance mensuelle et exports de données.</p></div><div class="acts">${['products','sales','purchases','expenses','customers','suppliers'].map(k=>`<button class="btn gh sm" data-ex="${k}">CSV ${M[k].t}</button>`).join('')}</div></div>
-  ${statHtml([['Valeur du stock (achat)',money(val),'inf','box'],['Valeur de revente',money(sum(D.products,p=>p.qty*p.selling_price)),'ok','dollar'],['Marge potentielle',money(sum(D.products,p=>p.qty*(p.selling_price-p.purchase_price))),'wn','trend']])}
+  ${statHtml([['Valeur du stock (achat)',money(val),'inf','box'],['Valeur de revente',money(sum(D.products.filter(p=>p.active),p=>p.qty*p.selling_price)),'ok','dollar'],['Marge potentielle',money(sum(D.products.filter(p=>p.active),p=>p.qty*(p.selling_price-p.purchase_price))),'wn','trend']])}
   <div class="tw"><table><thead><tr><th>Mois</th><th>Ventes</th><th>Achats</th><th>Dépenses</th><th>Bénéfice net</th></tr></thead><tbody>${rows.map(r=>`<tr><td style="text-transform:capitalize"><b>${r.l}</b></td><td class="num">${money(r.v)}</td><td class="num">${money(r.a)}</td><td class="num">${money(r.e)}</td><td class="num"><b class="${r.b<0?'':'g'}" style="${r.b<0?'color:var(--bd)':''}">${money(r.b)}</b></td></tr>`).join('')}</tbody></table></div>
   <p style="color:var(--i3);margin-top:10px;font-size:12.5px">Bénéfice net = ventes − coût d'achat des articles vendus − dépenses.</p>`;
   $$('[data-ex]').forEach(b=>b.onclick=()=>csv(b.dataset.ex))}
 
+/* ---------- alertes stock ---------- */
+const low=()=>D.products.filter(p=>p.active&&p.qty<=p.min_stock);
+function badge(){const n=low().length,b=$('[data-b=alerts]');if(b){b.textContent=n;b.classList.toggle('hidden',!n)}}
+function alerts(){const L=low().sort((a,b)=>a.qty-b.qty),sug=p=>Math.max(1,p.min_stock*2-p.qty);
+  $('#view').innerHTML=`<div class="head"><div><h2>Alertes stock</h2><p>Produits en rupture ou sous leur seuil : à réapprovisionner.</p></div><div class="acts"><button class="btn gh" id="ax">Exporter la liste CSV</button></div></div>${statHtml([['À réapprovisionner',L.length,'wn','warn'],['En rupture',L.filter(p=>p.qty<=0).length,'bd','x'],['Stock faible',L.filter(p=>p.qty>0).length,'wn','warn']])}<div class="tw"><table><thead><tr><th>Produit</th><th>SKU</th><th>Stock</th><th>Qté</th><th>Seuil</th><th>À commander (suggestion)</th></tr></thead><tbody>${L.map(p=>`<tr><td><b>${esc(p.name)}</b><small>${esc(nm('categories',p.category_id))}</small></td><td>${esc(p.sku||'—')}</td><td>${stk(p)}</td><td class="num">${p.qty}</td><td class="num">${p.min_stock}</td><td class="num"><b>${sug(p)}</b></td></tr>`).join('')||'<tr><td colspan="6"><div class="emp"><b>Tout est en ordre</b><br>Aucun produit sous son seuil d\'alerte.</div></td></tr>'}</tbody></table></div><p class="hint">Suggestion = quantité pour remonter à 2 × le seuil d'alerte.</p>`;
+  $('#ax').onclick=()=>csv('alertes',L.map(p=>({name:p.name,sku:p.sku,qty:p.qty,min_stock:p.min_stock,suggested_order:sug(p)})))}
+
 /* ---------- settings ---------- */
 function settings(){
   const g=n=>esc(S[n]||''),inp=(n,l,ph,t)=>`<div class="fd"><label>${l}</label><input id="s_${n}" type="${t||'text'}" value="${g(n)}" placeholder="${ph||''}"></div>`;
-  const lg=(id,l)=>`<div class="fd"><label>${l}</label><div style="display:flex;gap:10px;align-items:center"><div class="th lgp" id="pv_${id}" style="width:64px;height:64px;border:2px dashed var(--ln);background:var(--bg);font-size:12px">${S[id]?`<img src="${esc(S[id])}" alt="">`:'Logo'}</div><input id="s_${id}" value="${g(id)}" placeholder="URL du logo ou importer →"><label class="btn gh sm" style="cursor:pointer">Importer<input type="file" accept="image/*" data-up="${id}" hidden></label></div></div>`;
+  const lg=(id,l)=>`<div class="fd"><label>${l}</label><div style="display:flex;gap:10px;align-items:center"><div class="th lgp" id="pv_${id}" style="width:64px;height:64px;border:2px dashed var(--ln);background:var(--bg);font-size:12px">${safeUrl(S[id])?`<img src="${esc(safeUrl(S[id]))}" alt="">`:'Logo'}</div><input id="s_${id}" value="${g(id)}" placeholder="URL du logo ou importer →"><label class="btn gh sm" style="cursor:pointer">Importer<input type="file" accept="image/*" data-up="${id}" hidden></label></div></div>`;
   $('#view').innerHTML=`<div class="head"><div><h2>Réglages</h2><p>Tout est modifiable : identité de la société cliente, votre marque d'éditeur, coordonnées et devise.</p></div></div>
   <form id="sf"><div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));align-items:start">
   <div class="card"><h3>Société cliente<small>affichée dans le logiciel et sur les factures</small></h3>${inp('store_name','Nom de la société *','Ex : Atlas Distribution')}${inp('tagline','Slogan / sous-titre','Gestion de stock')}${lg('logo','Logo de la société')}<div class="fr"><div class="fd"><label>Couleur principale</label><input id="s_accent" type="color" value="${/^#[0-9a-f]{6}$/i.test(S.accent||'')?S.accent:B.accent}" style="height:42px;padding:3px"></div>${inp('currency','Devise','DH')}</div>${inp('email','Email','contact@…','email')}${inp('phone','Téléphone','+212…')}${inp('address','Adresse','')}</div>
   <div class="card"><h3>Votre entreprise (éditeur)<small>affichée en bas du menu et sur la page de connexion</small></h3>${inp('vendor_name','Nom de votre entreprise','Ex : Adil Software')}${inp('vendor_tag','Texte avant le nom','Logiciel développé par')}${lg('vendor_logo','Votre logo')}${inp('vendor_url','Site web / lien','https://…')}<p style="color:var(--i3);font-size:12.5px">Laissez vide pour masquer ce bloc.</p></div></div>
   <div class="ma" style="justify-content:flex-start"><button class="btn">Enregistrer</button></div></form>`;
-  ['logo','vendor_logo'].forEach(id=>$('#s_'+id).oninput=e=>$('#pv_'+id).innerHTML=e.target.value?`<img src="${esc(e.target.value)}" alt="">`:'Logo');
-  $$('[data-up]').forEach(i=>i.onchange=async()=>{const f=i.files[0],id=i.dataset.up;if(!f)return;if(f.size>3e6)return toast('Image trop lourde (3 Mo max)',1);
+  ['logo','vendor_logo'].forEach(id=>$('#s_'+id).oninput=e=>$('#pv_'+id).innerHTML=safeUrl(e.target.value)?`<img src="${esc(safeUrl(e.target.value))}" alt="">`:'Logo');
+  $$('[data-up]').forEach(i=>i.onchange=async()=>{const f=i.files[0],id=i.dataset.up;if(!f)return;if(!f.type.startsWith('image/'))return toast('Fichier image requis',1);if(f.size>3e6)return toast('Image trop lourde (3 Mo max)',1);
     const p='brand-'+id+'-'+Date.now()+'-'+f.name.replace(/[^\w.-]/g,'_');toast('Import…');
-    const {error}=await sb.storage.from(C.supabase.bucket).upload(p,f);if(error)return toast(error.message,1);
+    const {error}=await sb.storage.from(C.supabase.bucket).upload(p,f);if(error)return toast(errMsg(error),1);
     const u=sb.storage.from(C.supabase.bucket).getPublicUrl(p).data.publicUrl;$('#s_'+id).value=u;$('#pv_'+id).innerHTML=`<img src="${esc(u)}" alt="">`;toast('Logo importé — pensez à enregistrer')});
   $('#sf').onsubmit=async e=>{e.preventDefault();const v={id:1};
     ['store_name','tagline','logo','accent','currency','email','phone','address','vendor_name','vendor_tag','vendor_logo','vendor_url'].forEach(n=>v[n]=$('#s_'+n).value.trim()||null);
     if(!v.store_name)return toast('Le nom de la société est obligatoire',1);
-    const {error}=await sb.from('settings').upsert(v);if(error)return toast(error.message,1);
+    for(const n of ['logo','vendor_logo','vendor_url']){if(v[n]&&!safeUrl(v[n]))return toast('Lien invalide ('+n+') : utilisez une adresse http(s)://',1);if(v[n])v[n]=safeUrl(v[n])}
+    if(v.currency)v.currency=v.currency.slice(0,6);
+    const {error}=await sb.from('settings').upsert(v);if(error)return toast(errMsg(error),1);
     S={...S,...v};try{localStorage.setItem('bs',JSON.stringify(S))}catch(x){}brand();toast('Réglages enregistrés')}}
 </script>
 </body>
